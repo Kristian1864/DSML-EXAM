@@ -384,6 +384,35 @@ const FC = [
    a:'Compared ML methods (LSTM, deep NN, gradient boosting, random forest) to classical stat arb on S&P 500 pairs. ML methods outperformed classical pairs trading out-of-sample by detecting non-linear mean reversion signals invisible to linear models.'},
   {c:'Key Papers',q:'Bühler, Gonon, Teichmann & Wood (2019) — what is Deep Hedging?',
    a:'Proposed training a neural network (acting as a hedging agent) via reinforcement learning on simulated market paths. The NN learns the optimal hedging policy without Black-Scholes assumptions, handling transaction costs and market frictions naturally.'},
+
+// ── Module 2 additions ────────────────────────────────────────────────────
+{c:'Module 2', q:'What is the difference between Bagging and Boosting?', a:'Bagging trains multiple models in PARALLEL on bootstrap samples and averages predictions (e.g., Random Forest). Boosting trains models SEQUENTIALLY, each correcting errors of the previous (e.g., AdaBoost, XGBoost).', t:'Key word: Bagging = parallel + average; Boosting = sequential + correct errors.'}
+,{c:'Module 2', q:'What is Canonical Correlation Analysis (CCA)?', a:'CCA finds pairs of linear combinations — one from each of two datasets — such that the correlation between each pair is maximized. It generalises PCA to two-dataset settings.'}
+,{c:'Module 2', q:'Is K-Means a supervised or unsupervised algorithm?', a:'K-Means is UNSUPERVISED. It groups data into K clusters based on feature similarity without using any class labels.', t:'No labels = unsupervised. K-Means minimises within-cluster variance.'}
+
+// ── Module 3 additions ────────────────────────────────────────────────────
+,{c:'Module 3', q:'What does return_sequences=True do in a Keras RNN/LSTM layer?', a:'return_sequences=True returns the hidden state at EVERY time step as a sequence. return_sequences=False (default) returns only the LAST hidden state. Use True when stacking RNN layers or building seq2seq encoders.'}
+,{c:'Module 3', q:'What is a RepeatVector layer in Keras and when do you use it?', a:'RepeatVector(n) repeats the input vector n times to produce a (batch, n, features) tensor. Used in seq2seq autoencoders to bridge the encoder\'s fixed-length vector and the decoder\'s sequence input.'}
+,{c:'Module 3', q:'What is the dummy variable trap and how do you avoid it?', a:'When one-hot encoding K categories, using all K columns creates perfect multicollinearity (dummy variable trap) because they sum to 1. Avoid it by dropping one column: pd.get_dummies(df, drop_first=True).', t:'drop_first=True is the standard fix.'}
+
+// ── Module 4 additions ────────────────────────────────────────────────────
+,{c:'Module 4', q:'What is the relationship between a linear Autoencoder and PCA?', a:'A linear autoencoder trained with MSE loss learns to project data onto the same SUBSPACE as the top PCA components. The individual axes may differ (they are not necessarily the eigenvectors), but the spanned subspace is the same.'}
+,{c:'Module 4', q:'Is LDA (Linear Discriminant Analysis) supervised or unsupervised?', a:'LDA is SUPERVISED — it requires class labels to find directions that maximise between-class variance and minimise within-class variance. This means it CANNOT be applied to unlabeled data, unlike PCA or Autoencoders.', t:'Exam trap: "Both AE and LDA work on unlabeled data" is FALSE.'}
+
+// ── Module 5 additions ────────────────────────────────────────────────────
+,{c:'Module 5', q:'What is the causal mask in a decoder-only transformer?', a:'The causal (autoregressive) mask sets future positions to −∞ before the softmax in self-attention, ensuring that when predicting token t the model can only attend to tokens 1…t. This enables left-to-right text generation.'}
+
+// ── Module 6 (LLMs) additions ─────────────────────────────────────────────
+,{c:'Module 6', q:'What is a Large Language Model (LLM) at its core?', a:'An LLM is a parameterised function (a deep neural network) that maps token embeddings to a probability distribution (logits) over the vocabulary, enabling next-token prediction and text generation.'}
+,{c:'Module 6', q:'What loss function is used to train LLMs?', a:'Categorical Cross-Entropy over the vocabulary distribution for next-token prediction (equivalent to negative log-likelihood). At each position the model predicts the next token and is penalised by how wrong its probability distribution was.'}
+
+// ── Coding additions ──────────────────────────────────────────────────────
+,{c:'Coding', q:'How do you create a scatter plot from a pandas DataFrame?', a:'df.plot.scatter(x=\'col1\', y=\'col2\') or equivalently df.plot(kind=\'scatter\', x=\'col1\', y=\'col2\'). Requires matplotlib to be imported for plt.show().'}
+,{c:'Coding', q:'What is the difference between df.iloc and df.loc?', a:'df.loc uses LABEL-based indexing (row/column names, including date strings). df.iloc uses INTEGER position-based indexing (0, 1, 2, …). Passing a string to iloc raises a TypeError.', t:'loc = label; iloc = integer.'}
+,{c:'Coding', q:'How do you mount Google Drive in a Colab notebook?', a:'from google.colab import drive\ndrive.mount(\'/content/drive\')\nAfter mounting, files are accessible under /content/drive/MyDrive/.'}
+,{c:'Coding', q:'What is the difference between `import numpy` and `import numpy as np`?', a:'`import numpy` makes the module available only as `numpy`. Using `np.array(...)` will raise a NameError. Always use `import numpy as np` to enable the standard `np.*` shorthand.', t:'No alias → NameError on np.*'}
+,{c:'Coding', q:'What is Ridge Regression and when should you use it?', a:'Ridge Regression (L2 regularisation on linear regression) adds λΣw² to the loss, shrinking coefficients toward zero. Use it when features are highly correlated (multicollinearity) to improve numerical stability without eliminating features.'}
+
 ];
 
 const QS = [
@@ -917,6 +946,679 @@ const QS = [
    q:'Bühler, Gonon, Teichmann & Wood (2019) introduced Deep Hedging as:',
    o:['A new option pricing formula replacing Black-Scholes analytically','An RL/DL approach to learn optimal hedging policies from simulated trajectories','A new cointegration-based pairs trading method','A PCA method for volatility surfaces'],
    a:1,e:'Deep Hedging trains a neural network agent via RL on simulated market paths to learn an optimal hedging policy — no closed-form assumptions, naturally handling transaction costs and stochastic volatility.'},
+
+// ── Question Examples 2026 – BTP Q12 (6 options) ──────────────────────────
+{m:'Question Examples 2026', mock:true,
+  q:'You are building a Binary Text Predictor. The following code is provided. What line of code is missing between lines 4 and 5? 1) model = Model(input_layer, output_layer)  2) output_layer = Dense(1, activation=\'sigmoid\')(x)  3) input_layer = Input(shape=(max_features,))  4) x = Dense(64, activation=\'relu\')(input_layer)  5) model.compile(...)',
+  o:['1, 3, 5, 4, 2',
+     '3, 4, 2, 1, 5',
+     '3, 2, 4, 1, 5',
+     '1, 2, 3, 4, 5',
+     '3, 4, 1, 2, 5',
+     '2, 3, 4, 1, 5'],
+  a:1,
+  e:'The correct Functional API order is: Input layer (3) → first Dense/relu (4) → output Dense/sigmoid (2) → Model() (1) → compile (5). So the sequence is 3,4,2,1,5.'}
+
+// ── May 14, 2024 ────────────────────────────────────────────────────────────
+,{m:'May 14, 2024', mock:true,
+  q:'What is the purpose of the compile() method in Keras?',
+  o:['It initializes the weights of the neural network',
+     'It splits the data into training and test sets',
+     'It visualizes the architecture of the neural network',
+     'It configures the learning process before training'],
+  a:3,
+  e:'compile() sets up the optimizer, loss function, and metrics — it configures the learning process before training begins.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'What is the purpose of the fit() method in Keras?',
+  o:['It evaluates the performance of the neural network on test data',
+     'It trains the neural network on the provided data',
+     'It compiles the neural network model',
+     'It generates predictions from the neural network'],
+  a:1,
+  e:'fit() trains the neural network by running the forward and backward passes over the training data for the specified number of epochs.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'What is the primary purpose of an Autoencoder?',
+  o:['Dimensionality reduction by learning a compressed representation of the input',
+     'Classifying input data into predefined categories',
+     'Generating new data samples from a learned distribution',
+     'Predicting future values in a time series'],
+  a:0,
+  e:'Autoencoders learn to compress input data into a lower-dimensional latent space (encoder) and reconstruct it (decoder), making dimensionality reduction their primary purpose.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'How is the j-th principal component computed?',
+  o:['The j-th eigenvector of the covariance matrix multiplied by the original data matrix',
+     'The j-th eigenvalue of the correlation matrix divided by the sum of all eigenvalues',
+     'The j-th row of the data matrix after mean-centering',
+     'The j-th eigenvector of the data matrix multiplied by the covariance matrix'],
+  a:0,
+  e:'The j-th principal component is obtained by projecting the data onto the j-th eigenvector: PC_j = e_j^T × X (eigenvector of the covariance matrix times the data matrix).'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'Which statement about L2 regularization is correct?',
+  o:['L2 regularization adds a penalty equal to the sum of absolute values of weights',
+     'L2 regularization sets some weights exactly to zero',
+     'L2 regularization adds a penalty proportional to the square of the weights',
+     'L2 regularization only affects the bias terms in the network'],
+  a:2,
+  e:'L2 (Ridge) regularization adds λ × Σw² to the loss, penalizing the square of the weights. This shrinks weights toward zero but rarely to exactly zero.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'Which of the following best describes a Random Forest?',
+  o:['It uses a single decision tree with pruning to avoid overfitting',
+     'It boosts weak learners sequentially to improve accuracy',
+     'It builds multiple trees using random subsets of features and data samples, then aggregates results',
+     'It applies gradient descent to minimize a loss function over decision trees'],
+  a:2,
+  e:'Random Forest builds many decision trees, each trained on a random bootstrap sample of the data and a random subset of features, then aggregates (bagging) their predictions.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'What type of data is a Recurrent Neural Network (RNN) particularly well-suited for?',
+  o:['Sequential data with temporal dependencies, such as time series and text',
+     'High-dimensional image data with spatial hierarchies',
+     'Tabular data with many categorical features',
+     'Static datasets with no ordering between samples'],
+  a:0,
+  e:'RNNs maintain a hidden state that carries information across time steps, making them ideal for sequential data like time series, speech, and natural language.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'What does the return_sequences parameter control in a Keras RNN/LSTM layer?',
+  o:['Whether the layer returns the full sequence of hidden states or only the final hidden state',
+     'Whether the layer applies dropout to the recurrent connections',
+     'Whether the layer uses bidirectional processing',
+     'Whether the layer resets its hidden state between batches'],
+  a:0,
+  e:'return_sequences=True returns the hidden state at every time step; return_sequences=False (default) returns only the last hidden state. Stack RNNs or use seq2seq with return_sequences=True.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'Which statement about the ReLU activation function is correct?',
+  o:['ReLU outputs values between 0 and 1',
+     'ReLU is bounded below at zero: f(x) = max(0, x)',
+     'ReLU is differentiable everywhere including at x=0',
+     'ReLU squashes inputs to the range (-1, 1)'],
+  a:1,
+  e:'ReLU is defined as f(x) = max(0, x): it outputs 0 for negative inputs and x for positive inputs. It is bounded below at 0 but unbounded above.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'What is the main difference between Statistics and Data Science?',
+  o:['Statistics focuses on big data; Data Science focuses on small samples',
+     'Statistics uses mathematical theory for inference; Data Science uses programming and machine learning for predictions',
+     'Statistics requires coding skills; Data Science does not',
+     'There is no meaningful difference between the two fields'],
+  a:1,
+  e:'Statistics emphasizes mathematical theory, probability, and inference from data. Data Science is broader, encompassing programming, machine learning, and predictive modelling at scale.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'The following Keras code builds a sequence-to-sequence autoencoder. Line 1: encoder_input = Input(shape=(timesteps, features))  Line 2: encoded = SimpleRNN(latent_dim, return_sequences=False)(encoder_input)  Line 3: decoded = SimpleRNN(features, return_sequences=True)(???)  Line 4: model = Model(encoder_input, decoded). What is missing between line 2 and line 3?',
+  o:['A Dense layer with relu activation',
+     'A RepeatVector(timesteps) layer',
+     'A Flatten layer',
+     'A Reshape layer',
+     'A Dropout layer'],
+  a:1,
+  e:'RepeatVector(timesteps) repeats the encoder\'s fixed-length vector T times so the decoder RNN receives a sequence input of the correct shape.'}
+
+,{m:'May 14, 2024', mock:true,
+  q:'You are building a multi-input neural network. Line 1: input1 = Input(shape=(10,))  Line 2: input2 = Input(shape=(5,))  Line 3: output1 = Dense(8, activation=\'relu\')(input1)  Line 4: output2 = Dense(8, activation=\'relu\')(input2)  Line 5: ???  Line 6: output = Dense(1, activation=\'sigmoid\')(merged)  Line 7: model = Model([input1, input2], output). What belongs on line 5?',
+  o:['merged = Add()([output1, output2])',
+     'merged = Flatten()([output1, output2])',
+     'merged = Dense(8)(output1, output2)',
+     'merged = concatenate([output1, output2])',
+     'merged = multiply([output1, output2])',
+     'merged = Merge([output1, output2])'],
+  a:3,
+  e:'concatenate([output1, output2]) merges the two branches along the feature axis, creating a combined representation before the final output layer.'}
+
+// ── Oct 31, 2024 ─────────────────────────────────────────────────────────────
+,{m:'Oct 31, 2024', mock:true,
+  q:'Which statement about L1 regularization is correct?',
+  o:['L1 regularization penalizes the square of the weights',
+     'L1 regularization penalizes the sum of absolute values of weights, promoting sparsity',
+     'L1 regularization only affects bias terms',
+     'L1 regularization is identical to L2 regularization'],
+  a:1,
+  e:'L1 (Lasso) regularization adds λ × Σ|w| to the loss. Because the penalty is on absolute values, it can drive some weights to exactly zero, producing sparse models.'}
+
+,{m:'Oct 31, 2024', mock:true,
+  q:'What is overfitting in machine learning?',
+  o:['A model that performs poorly on both training and test data',
+     'A model that is too simple to capture patterns in the data',
+     'A model that performs well on training data but poorly on new, unseen data',
+     'A model that requires too much computational power'],
+  a:2,
+  e:'Overfitting occurs when a model memorizes the training data (including noise) and fails to generalize, resulting in high training accuracy but poor test accuracy.'}
+
+,{m:'Oct 31, 2024', mock:true,
+  q:'You have a highly imbalanced dataset (e.g., 95% class 0, 5% class 1). Which approach is LEAST appropriate?',
+  o:['Use SMOTE to oversample the minority class',
+     'Use class weights to penalize misclassification of the minority class',
+     'None of the other answers — all listed options are appropriate',
+     'Evaluate performance using F1-score instead of accuracy'],
+  a:2,
+  e:'All common approaches — SMOTE, class weighting, and using F1-score — are appropriate strategies for imbalanced datasets. "None of the other" is therefore the correct pick.'}
+
+,{m:'Oct 31, 2024', mock:true,
+  q:'Which type of neural network is best suited for sequential data such as time series or natural language?',
+  o:['Convolutional Neural Network (CNN)',
+     'Recurrent Neural Network (RNN)',
+     'Feedforward Neural Network',
+     'Autoencoder'],
+  a:1,
+  e:'RNNs (and their variants LSTM, GRU) maintain hidden state across time steps, making them ideal for sequential data like time series, speech, and text.'}
+
+,{m:'Oct 31, 2024', mock:true,
+  q:'Which of the following is true about K-Means clustering?',
+  o:['K-Means requires labeled data to learn cluster assignments',
+     'K-Means is a supervised learning algorithm that predicts class labels',
+     'K-Means is an unsupervised algorithm that groups data based on feature similarity',
+     'K-Means always finds the globally optimal clustering solution'],
+  a:2,
+  e:'K-Means is unsupervised — it groups data into K clusters by minimizing within-cluster variance without using any class labels.'}
+
+,{m:'Oct 31, 2024', mock:true,
+  q:'What does grid search do in machine learning?',
+  o:['It searches for the best model architecture using gradient-based methods',
+     'It randomly samples hyperparameter combinations to find the best model',
+     'None of the other answers — it exhaustively searches a specified hyperparameter grid',
+     'It prunes decision trees by searching for the optimal split points'],
+  a:2,
+  e:'Grid search exhaustively evaluates every combination of the specified hyperparameter values using cross-validation. "None of the other" captures this since the distractors describe random search and other methods.'}
+
+,{m:'Oct 31, 2024', mock:true,
+  q:'What is Bagging in ensemble learning?',
+  o:['A method that builds models sequentially, each correcting the errors of the previous',
+     'A method that trains multiple models in parallel on bootstrap samples and averages their predictions',
+     'A method that selects the single best model from a set of candidates',
+     'A method that applies L1 regularization to reduce model complexity'],
+  a:1,
+  e:'Bagging (Bootstrap Aggregating) trains multiple independent models on random subsets (with replacement) of the training data, then aggregates (averages or votes) their predictions to reduce variance.'}
+
+,{m:'Oct 31, 2024', mock:true,
+  q:'What is the primary purpose of a validation set during model training?',
+  o:['To provide additional training examples to improve model accuracy',
+     'To evaluate the final model performance for publication',
+     'To tune hyperparameters and monitor for overfitting during training',
+     'To balance class distributions in the training data'],
+  a:2,
+  e:'The validation set is used during training to tune hyperparameters (e.g., learning rate, number of layers) and to detect overfitting by monitoring validation loss alongside training loss.'}
+
+// ── May 20, 2025 ─────────────────────────────────────────────────────────────
+,{m:'May 20, 2025', mock:true,
+  q:'L2 regularization is mainly used to address which problem?',
+  o:['Underfitting by increasing model complexity',
+     'Slow convergence by scaling the learning rate',
+     'Overfitting by penalizing large weights (learning noise)',
+     'Class imbalance by reweighting training examples'],
+  a:2,
+  e:'L2 regularization adds a penalty proportional to the square of the weights to the loss function, discouraging the model from fitting noise in the training data (overfitting).'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'Which statement best describes Boosting?',
+  o:['Boosting trains all base learners independently in parallel',
+     'Boosting randomly selects features for each tree to reduce correlation',
+     'Boosting builds models sequentially where each model focuses on the errors of the previous one',
+     'Boosting averages predictions from models trained on bootstrap samples'],
+  a:2,
+  e:'Boosting is a sequential ensemble method: each new model is trained to correct the mistakes of the previous models (e.g., AdaBoost, Gradient Boosting, XGBoost).'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'What is the key difference between L1 and L2 regularization?',
+  o:['L1 uses squared penalties; L2 uses absolute value penalties',
+     'L2 shrinks all weights toward zero; L1 can drive some weights to exactly zero (sparsity)',
+     'L1 is only used in CNNs; L2 is only used in RNNs',
+     'L1 and L2 are identical in effect'],
+  a:1,
+  e:'L2 (Ridge) shrinks weights smoothly toward zero. L1 (Lasso) applies an absolute-value penalty that creates sparsity by setting some weights to exactly zero.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'Which Keras code correctly defines a full Autoencoder using the Functional API?',
+  o:['model = Sequential([encoder, decoder])',
+     'model = Model(inputs=encoder_input, outputs=encoder_output)',
+     'model = Model(encoder_input, decoder(encoder_output))',
+     'model = Model(decoder_input, encoder(decoder_input))'],
+  a:2,
+  e:'In the Functional API, the autoencoder model takes the encoder\'s input and produces the decoder\'s output: Model(encoder_input, decoder(encoder_output)).'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'What is the correct order of steps to train a Keras neural network? 1) model.fit(X_train, y_train)  2) model = Sequential(...)  3) model.compile(optimizer=..., loss=...)  4) model.evaluate(X_test, y_test)  5) predictions = model.predict(X_test)',
+  o:['3, 2, 4, 5, 1',
+     '2, 1, 3, 4, 5',
+     '2, 3, 1, 4, 5',
+     '3, 4, 5, 2, 1'],
+  a:2,
+  e:'The correct Keras workflow is: define model (2) → compile (3) → fit/train (1) → evaluate (4) → predict (5). So the order is 2,3,1,4,5.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'What is the correct order for implementing a custom metric in Keras? 1) return metric_value  2) metric_value = ...  3) def custom_metric(y_true, y_pred):  4) import tensorflow as tf  5) model.compile(metrics=[custom_metric])',
+  o:['4, 3, 2, 1, 5',
+     '3, 4, 2, 1, 5',
+     '4, 2, 3, 1, 5',
+     '3, 2, 4, 1, 5'],
+  a:0,
+  e:'You first import tensorflow (4), then define the function (3), compute the metric inside (2), return it (1), then pass it to compile (5). Order: 4,3,2,1,5.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'Which statement about the relationship between a linear Autoencoder and PCA is correct?',
+  o:['A linear AE always produces the exact same components as PCA',
+     'A linear AE and PCA are completely unrelated methods',
+     'A linear AE spans the same subspace as the top PCA components, but the axes may differ',
+     'A linear AE is strictly worse than PCA for dimensionality reduction'],
+  a:2,
+  e:'A linear autoencoder with MSE loss learns to project data onto the same subspace spanned by the top principal components, but the individual axes need not align with the eigenvectors.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'What is the main advantage of an Autoencoder over PCA for dimensionality reduction?',
+  o:['Autoencoders are always faster to train than PCA',
+     'Autoencoders can capture non-linear structure; PCA is limited to linear transformations',
+     'Autoencoders always produce a better reconstruction than PCA',
+     'Autoencoders require less data than PCA'],
+  a:1,
+  e:'PCA is a linear method. Non-linear (deep) autoencoders can learn complex, non-linear manifolds in the data, giving them a representational advantage over PCA.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'Which pandas code correctly creates a scatter plot of columns A and B from a DataFrame df?',
+  o:['df.scatter(x=\'A\', y=\'B\')',
+     'df.plot(kind=\'scatter\', x=\'A\', y=\'B\')',
+     'df.plot.scatter(x=\'A\', y=\'B\')',
+     'df.scatter_plot(\'A\', \'B\')'],
+  a:2,
+  e:'The correct pandas syntax is df.plot.scatter(x=\'A\', y=\'B\'). Alternatively df.plot(kind=\'scatter\', x=\'A\', y=\'B\') also works, but df.plot.scatter(...) is the idiomatic accessor form.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'What is the main difference between Machine Learning and Statistics?',
+  o:['ML focuses on mathematical proofs; Statistics focuses on predictions',
+     'ML emphasizes programming and predictive accuracy; Statistics emphasizes inference and mathematical theory',
+     'ML and Statistics are the same discipline with different names',
+     'Statistics uses computers; ML uses only mathematical formulas'],
+  a:1,
+  e:'Machine Learning prioritizes predictive performance, scalability, and automation. Statistics emphasizes formal inference, uncertainty quantification, and mathematical theory.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'In a Keras classification pipeline, which step is missing to produce a classification report? 1) model = Sequential(...)  2) model.compile(...)  3) model.fit(X_train, y_train)  4) ??? 5) print(classification_report(y_test, y_pred))',
+  o:['X_test, y_test = train_test_split(...)',
+     'model.evaluate(X_test, y_test)',
+     'model.summary()',
+     'y_pred = model.predict(X_test)'],
+  a:3,
+  e:'You need to generate predictions before calling classification_report. The missing step is y_pred = model.predict(X_test), which produces the predicted labels/probabilities.'}
+
+,{m:'May 20, 2025', mock:true,
+  q:'In Google Colab, which line of code is needed to access files stored in Google Drive?',
+  o:['import google.drive',
+     'from google.colab import drive',
+     'drive.mount(\'/content/drive\')',
+     'from google.colab import files; files.mount()'],
+  a:2,
+  e:'In Colab you first import and then mount: from google.colab import drive; drive.mount(\'/content/drive\'). The mount call itself is: drive.mount(\'/content/drive\').'}
+
+// ── June 4, 2025 ─────────────────────────────────────────────────────────────
+,{m:'June 4, 2025', mock:true,
+  q:'What is the sole purpose of Dropout in a neural network?',
+  o:['To speed up training by reducing matrix dimensions',
+     'To reduce overfitting by randomly deactivating neurons during training',
+     'To normalize activations across a mini-batch',
+     'To initialize weights with a better distribution'],
+  a:1,
+  e:'Dropout randomly sets a fraction of neuron outputs to zero during each training pass, acting as regularization that reduces co-adaptation of neurons and thus reduces overfitting.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'What does Canonical Correlation Analysis (CCA) do?',
+  o:['It reduces dimensionality by maximizing explained variance in a single dataset',
+     'It clusters observations into groups based on feature similarity',
+     'It finds linear combinations of two sets of variables that are maximally correlated with each other',
+     'It performs supervised classification using canonical directions'],
+  a:2,
+  e:'CCA finds pairs of linear combinations (canonical variates), one from each dataset, such that the correlation between each pair is maximized.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'You run a linear regression of PC2 on PC1. What R² value do you expect?',
+  o:['1 — because all variance is explained by the components',
+     '0.5 — because components share half the variance',
+     '−1 — because the components are negatively correlated',
+     '0 — because principal components are orthogonal by construction'],
+  a:3,
+  e:'PCA principal components are orthogonal (uncorrelated) by construction. Regressing PC2 on PC1 yields R² = 0 because there is zero linear relationship between them.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'Why is the Sigmoid activation function used in the output layer of a binary classification network?',
+  o:['It ensures the output is centered at zero for numerical stability',
+     'It produces sparse activations by clipping negative values to zero',
+     'It outputs a value between 0 and 1, interpretable as a probability for binary classification',
+     'It prevents the vanishing gradient problem in deep networks'],
+  a:2,
+  e:'Sigmoid maps any real number to (0,1), which can be interpreted as the probability that a sample belongs to the positive class — ideal for binary classification output.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'What is the correct order of NumPy steps to compute the sum of an array, verify it is above a threshold, and print the result? 1) print(result)  2) result = np.sum(arr) > threshold  3) import numpy as np  4) arr = np.array([...])  5) threshold = 50',
+  o:['3, 4, 5, 2, 1',
+     '4, 3, 5, 1, 2',
+     '3, 5, 4, 2, 1',
+     '5, 4, 3, 2, 1'],
+  a:0,
+  e:'The correct sequence is: import numpy (3) → create array (4) → set threshold (5) → compute and compare (2) → print (1). Order: 3,4,5,2,1.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'The following sklearn pipeline has a bug. Line 1: from sklearn.preprocessing import StandardScaler  Line 2: from sklearn.pipeline import Pipeline  Line 3: pipe = Pipeline([(\'scaler\', StandardScaler), (\'model\', LogisticRegression())])  Line 4: pipe.fit(X_train, y_train). What is wrong?',
+  o:['LogisticRegression() should be LogisticRegression without parentheses',
+     'Pipeline steps must be defined as a dictionary, not a list of tuples',
+     'fit() requires a validation set as a third argument',
+     'StandardScaler is passed as a class, not an instance — it should be StandardScaler()'],
+  a:3,
+  e:'Pipeline expects instantiated objects. StandardScaler (without parentheses) is the class itself; it must be StandardScaler() to create an instance.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'Which statement is COMPLETELY WRONG about Autoencoders and LDA?',
+  o:['LDA can be used for supervised dimensionality reduction',
+     'Autoencoders can be used for unsupervised feature learning',
+     'Both AE and LDA can perform dimensionality reduction',
+     'Both AE and LDA can be applied to unlabeled data'],
+  a:3,
+  e:'LDA (Linear Discriminant Analysis) is a supervised method that requires class labels. Saying "both can be applied to unlabeled data" is completely wrong because LDA needs labels.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'Why are neural networks said to be overparameterized?',
+  o:['Different sets of parameters can map inputs to the same output distribution',
+     'The number of parameters is always larger than the number of training samples',
+     'Neural networks use redundant layers that could be removed without loss of accuracy',
+     'All parameters converge to the same value during training'],
+  a:0,
+  e:'Neural networks are overparameterized because many different parameter configurations can produce equivalent input-output mappings. This creates a highly non-convex loss landscape with many equivalent minima.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'The following code should produce a boxplot. Line 1: import pandas as pd  Line 2: df = pd.DataFrame({\'score\': [1,2,3,4,5]})  Line 3: df.boxplot(column=\'score\')  Line 4: plt.show(). What is missing?',
+  o:['import seaborn as sns',
+     'import matplotlib.pyplot as plt',
+     'from pandas import plotting',
+     'import numpy as np'],
+  a:1,
+  e:'plt.show() requires matplotlib to be imported. The missing line is import matplotlib.pyplot as plt, which must appear before line 4.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'Which loss function should you use for multi-class classification where labels are one-hot encoded and the output layer uses softmax?',
+  o:['Mean Squared Error',
+     'Binary Cross-Entropy',
+     'Hinge Loss',
+     'Categorical Cross-Entropy'],
+  a:3,
+  e:'Categorical Cross-Entropy is the standard loss for multi-class classification with one-hot labels and a softmax output layer. Binary Cross-Entropy is for binary classification.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'What is the correct order to build and train a Keras Autoencoder? 1) model.fit(X_train, X_train)  2) model.compile(optimizer=\'adam\', loss=\'mse\')  3) encoder_input = Input(shape=(input_dim,))  4) encoded = Dense(latent_dim, activation=\'relu\')(encoder_input)  5) model = Model(encoder_input, decoded)  6) decoded = Dense(input_dim, activation=\'sigmoid\')(encoded)',
+  o:['3, 4, 6, 5, 2, 1',
+     '1, 2, 3, 4, 5, 6',
+     '3, 6, 4, 5, 2, 1',
+     '5, 3, 4, 6, 2, 1',
+     '3, 4, 5, 6, 2, 1',
+     '2, 3, 4, 6, 5, 1'],
+  a:0,
+  e:'Correct order: Input layer (3) → encoder Dense (4) → decoder Dense (6) → Model() (5) → compile (2) → fit (1). Sequence: 3,4,6,5,2,1.'}
+
+,{m:'June 4, 2025', mock:true,
+  q:'What is the correct order to fit a logistic regression model on binomial count data in R? 1) summary(model)  2) model <- glm(cbind(successes, failures) ~ x, family=binomial)  3) library(ggplot2)  4) plot(x, successes/trials)  5) data <- read.csv(\'data.csv\')  6) trials <- data$n  7) successes <- data$y',
+  o:['5, 6, 7, 3, 4, 2, 1',
+     '5, 7, 6, 3, 4, 2, 1',
+     '3, 5, 6, 7, 4, 2, 1',
+     '5, 6, 7, 4, 3, 2, 1'],
+  a:1,
+  e:'Load data (5) → extract successes (7) → extract trials/failures (6) → load ggplot2 (3) → plot (4) → fit glm (2) → summary (1). Order: 5,7,6,3,4,2,1.'}
+
+// ── Sept 5, 2025 ──────────────────────────────────────────────────────────────
+,{m:'Sept 5, 2025', mock:true,
+  q:'What is the main use of Ridge Regression?',
+  o:['To improve model interpretability by removing irrelevant features',
+     'To speed up gradient descent convergence',
+     'To reduce multicollinearity by shrinking correlated coefficients toward zero',
+     'To handle missing data by imputing with regularized estimates'],
+  a:2,
+  e:'Ridge Regression adds an L2 penalty that shrinks large correlated coefficients toward zero, reducing multicollinearity and improving numerical stability without eliminating features.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'What is the correct order to normalize a pandas DataFrame column? 1) df[\'norm\'] = (df[\'value\'] - min_val) / (max_val - min_val)  2) max_val = df[\'value\'].max()  3) min_val = df[\'value\'].min()  4) print(df[\'norm\'])',
+  o:['2, 3, 1, 4',
+     '3, 2, 1, 4',
+     '1, 2, 3, 4',
+     '3, 1, 2, 4'],
+  a:0,
+  e:'Get max (2) → get min (3) → apply normalization formula (1) → print result (4). Order: 2,3,1,4.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'Which statement about Gradient Descent is FALSE?',
+  o:['Gradient Descent can get stuck in local minima',
+     'The learning rate controls the step size of each update',
+     'Gradient Descent guarantees finding the global minimum for non-convex loss functions',
+     'Mini-batch Gradient Descent is a compromise between SGD and batch GD'],
+  a:2,
+  e:'Gradient Descent does NOT guarantee finding the global minimum for non-convex functions (like neural network loss surfaces). It can converge to local minima or saddle points.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'You run PCA on data where all features have equal variance and all pairs of features have positive correlations. What can you say about the first eigenvector?',
+  o:['All entries of the first eigenvector will be zero',
+     'All entries will alternate between positive and negative values',
+     'All entries will be negative',
+     'All entries will have the same sign (all positive or all the same direction)'],
+  a:3,
+  e:'When all correlations are positive and variances are equal, the dominant direction of variation is along the "average" direction — the first eigenvector has all entries with the same sign (typically all positive).'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'Which statement about the ReLU activation function is correct?',
+  o:['ReLU is not differentiable at x=0 and introduces sparsity by outputting 0 for negative inputs',
+     'ReLU always outputs values in the range (0, 1)',
+     'ReLU is differentiable everywhere and never produces zero outputs',
+     'ReLU is equivalent to the sigmoid function for positive inputs'],
+  a:0,
+  e:'ReLU f(x)=max(0,x) is not differentiable at x=0 (subgradient is used). It outputs exactly 0 for all negative inputs, introducing activation sparsity which can be beneficial for learning.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'Why is MSE (Mean Squared Error) NOT appropriate as a loss function for classification problems?',
+  o:['MSE is only defined for continuous inputs',
+     'MSE cannot handle multi-class problems',
+     'MSE does not penalize large errors enough',
+     'MSE treats class labels as continuous values, ignoring the categorical nature of the output'],
+  a:3,
+  e:'Classification labels (e.g., 0, 1, 2) are categorical. MSE treats them as real numbers, so it minimizes numerical distance rather than classification correctness — leading to poor optimization.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'Which activation function should you use in the output layer of a neural network for binary (spam vs. not-spam) classification?',
+  o:['Sigmoid, because it outputs a probability between 0 and 1',
+     'ReLU, because it is computationally efficient',
+     'Softmax, because it normalizes outputs across multiple classes',
+     'Tanh, because it centers the output around zero'],
+  a:0,
+  e:'Sigmoid outputs a value in (0,1) interpreted as the probability of the positive class — exactly what is needed for binary classification. Softmax is used for multi-class problems.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'An Autoencoder is trained by minimizing which loss?',
+  o:['Cross-entropy between input labels and predicted labels',
+     'KL-divergence between the latent distribution and a prior',
+     'Reconstruction loss (e.g., MSE) between the original input and the reconstructed output',
+     'Contrastive loss between positive and negative pairs'],
+  a:2,
+  e:'A standard autoencoder is trained to reconstruct its input: the loss is the reconstruction error (typically MSE) between the original input x and the decoder\'s output x̂.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'The following KNN code has a bug. Line 1: from sklearn.neighbors import KNeighborsClassifier  Line 2: knn = KNeighborsClassifier(n_neighbors=5)  Line 3: X_train, X_test, y_train, y_test = train_test_split(X, y)  Line 4: y_pred = knn.predict(X_test)  Line 5: knn.fit(X_train, y_train). What is the error?',
+  o:['n_neighbors=5 is an invalid parameter',
+     'Lines 4 and 5 are in the wrong order — predict() is called before fit()',
+     'train_test_split requires a random_state parameter',
+     'KNeighborsClassifier does not have a predict() method'],
+  a:1,
+  e:'predict() is called on line 4 before the model is fitted on line 5. You must call fit() before predict(). Lines 4 and 5 should be swapped.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'In which context is SoftMax activation NOT typically used?',
+  o:['Multi-class classification output layer',
+     'Attention weight computation in transformers',
+     'Normalizing probability distributions over a vocabulary',
+     'Cluster assignment in K-Means or other cluster analysis'],
+  a:3,
+  e:'SoftMax is used where you need a probability distribution over discrete classes (classification, attention, language model output). K-Means cluster assignment uses distance-based hard or soft assignments, not SoftMax.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'What is the correct order to build a logistic regression model in Keras? 1) model.compile(optimizer=\'sgd\', loss=\'binary_crossentropy\', metrics=[\'accuracy\'])  2) model = Sequential()  3) model.fit(X_train, y_train, epochs=50)  4) model.predict(X_test)  5) model.add(Dense(1, activation=\'sigmoid\', input_shape=(n_features,)))',
+  o:['1, 2, 5, 3, 4',
+     '2, 5, 1, 3, 4',
+     '5, 2, 1, 3, 4',
+     '2, 1, 5, 3, 4'],
+  a:1,
+  e:'Create Sequential model (2) → add Dense output layer (5) → compile (1) → fit (3) → predict (4). Order: 2,5,1,3,4.'}
+
+,{m:'Sept 5, 2025', mock:true,
+  q:'A Python script imports NumPy with: import numpy. Later the code uses np.array([1,2,3]). What happens?',
+  o:['The code runs fine because numpy and np refer to the same module',
+     'np.array raises a NameError because numpy was not imported as np',
+     'The code runs but np.array returns None',
+     'NumPy automatically creates the np alias when imported'],
+  a:1,
+  e:'import numpy makes the module available as numpy, not as np. Using np.array will raise NameError: name \'np\' is not defined. You must use import numpy as np to use the np alias.'}
+
+// ── LLM Mock 2026 ─────────────────────────────────────────────────────────────
+,{m:'LLM Mock 2026', mock:true,
+  q:'Which of the following best describes what a Large Language Model (LLM) fundamentally is?',
+  o:['A rule-based system that matches input patterns to predefined responses',
+     'A parameterized function that maps token embeddings to a probability distribution over the vocabulary',
+     'A database that retrieves pre-written text passages based on keyword search',
+     'A decision tree trained on text data to classify user intent'],
+  a:1,
+  e:'An LLM is a parameterized function (neural network) that takes token embeddings as input and outputs logits/probabilities over the vocabulary, enabling next-token prediction and text generation.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'What does an LLM actually process during text generation?',
+  o:['Raw text strings decoded from UTF-8 bytes',
+     'Integer token IDs looked up in a tokenizer vocabulary',
+     'Numerical embedding vectors representing tokens',
+     'Binary-encoded character sequences'],
+  a:2,
+  e:'Tokens are first converted to integer IDs, then looked up in an embedding matrix to produce dense numerical vectors. The model only ever processes these numerical embeddings — never raw text.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'In the context of LLMs, what is a "prompt"?',
+  o:['A training example used during fine-tuning',
+     'The initial text provided to the model that conditions its continuation',
+     'A special system token that controls the model\'s temperature',
+     'A hyperparameter that sets the maximum output length'],
+  a:1,
+  e:'A prompt is the input text sequence given to the model at inference time. It acts as the initial condition that the model conditions on when generating its continuation.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'In a transformer\'s self-attention mechanism, which two components are used to compute attention scores?',
+  o:['Keys (K) and Values (V)',
+     'Queries (Q) and Keys (K)',
+     'Queries (Q) and Values (V)',
+     'Embeddings (E) and Positional Encodings (P)'],
+  a:1,
+  e:'Attention scores are computed as the dot product of Q (Query) and K (Key) matrices, scaled by √d_k. The resulting softmax weights are then applied to V (Values) to produce the output.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'What is the purpose of the causal mask in a decoder-only transformer (like GPT)?',
+  o:['To mask padding tokens so they do not contribute to attention computations',
+     'To ensure each token can only attend to itself and earlier tokens, not future tokens',
+     'To prevent the model from attending to tokens outside a fixed context window',
+     'To normalize attention weights so they sum to one across all heads'],
+  a:1,
+  e:'The causal (autoregressive) mask sets future positions to −∞ before the softmax, ensuring that when predicting token t, the model can only attend to tokens 1…t. This is essential for left-to-right generation.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'What role do normalization layers (LayerNorm or RMSNorm) play in transformer training?',
+  o:['They reduce the vocabulary size to speed up the softmax computation',
+     'They stabilize activations to ensure numerical stability and enable training of very deep networks',
+     'They add positional information to the token embeddings',
+     'They compress the key-value cache to reduce memory usage'],
+  a:1,
+  e:'LayerNorm and RMSNorm normalize activations within each layer to zero mean / unit variance (or similar), preventing exploding/vanishing activations and enabling stable training of very deep transformer stacks.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'Which statement best describes how LoRA (Low-Rank Adaptation) works?',
+  o:['It replaces all weight matrices with smaller random projections',
+     'It fine-tunes only the last layer of the transformer while freezing the rest',
+     'It freezes the original model weights and injects small trainable low-rank decomposition matrices alongside them',
+     'It distills the full model into a smaller student model during fine-tuning'],
+  a:2,
+  e:'LoRA freezes the pretrained weights W and adds a trainable low-rank bypass: ΔW = A×B (where A, B are small matrices). Only A and B are trained, drastically reducing the number of parameters to update.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'How do Retrieval-Augmented Generation (RAG) and fine-tuning differ in how they add new knowledge to an LLM?',
+  o:['RAG changes the model weights; fine-tuning injects external documents into the prompt',
+     'RAG injects retrieved external text into the prompt at inference time; fine-tuning updates the model\'s weights during training',
+     'RAG and fine-tuning are identical — both modify the model\'s parameters',
+     'RAG is only for image models; fine-tuning is only for language models'],
+  a:1,
+  e:'RAG retrieves relevant documents and appends them to the prompt at inference time — no weight changes. Fine-tuning updates the model\'s weights on a dataset, baking knowledge into the parameters.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'Which loss function is typically used to train Large Language Models?',
+  o:['Mean Squared Error between predicted and target embeddings',
+     'Binary Cross-Entropy for token-level binary classification',
+     'Categorical Cross-Entropy over the vocabulary distribution for next-token prediction',
+     'Contrastive loss between positive and negative text pairs'],
+  a:2,
+  e:'LLM training is a next-token prediction task: at each position the model predicts a distribution over the vocabulary and is penalized by Categorical Cross-Entropy (equivalently, negative log-likelihood) against the true next token.'}
+
+,{m:'LLM Mock 2026', mock:true,
+  q:'How does an LLM typically handle a word that is not in its vocabulary (OOV)?',
+  o:['The model raises a KeyError and stops generation',
+     'The word is silently ignored and skipped in the input',
+     'The word is represented as a special unknown token (e.g., [UNK]) or split into subword tokens by the tokenizer',
+     'The model replaces the word with the most similar in-vocabulary word automatically'],
+  a:2,
+  e:'Modern tokenizers use subword algorithms (BPE, WordPiece, SentencePiece) that split unknown words into subword units, or fall back to an [UNK] token, so true OOV situations are rare but handled gracefully.'}
+
+// ── Programming Mock 2026 (unique questions only) ─────────────────────────────
+,{m:'Programming Mock 2026', mock:true,
+  q:'What is the correct order of steps to build and train a binary classification neural network in Keras? 1) model.fit(X_train, y_train, epochs=10)  2) model.compile(optimizer=\'adam\', loss=\'binary_crossentropy\', metrics=[\'accuracy\'])  3) model = Sequential()  4) model.add(Dense(1, activation=\'sigmoid\'))',
+  o:['3, 4, 2, 1',
+     '3, 2, 4, 1',
+     '2, 3, 4, 1',
+     '3, 4, 1, 2'],
+  a:0,
+  e:'Create model (3) → add output layer (4) → compile (2) → fit (1). Order: 3,4,2,1.'}
+
+,{m:'Programming Mock 2026', mock:true,
+  q:'In the Keras Functional API, which line correctly connects a Dense layer to an input?',
+  o:['x = layers.Dense(64)(input_layer)',
+     'x = layers.Dense(input_layer, 64)',
+     'x = Dense.connect(input_layer, units=64)',
+     'x = input_layer.add(Dense(64))'],
+  a:0,
+  e:'In the Functional API, layers are called as functions on their input tensors: x = layers.Dense(64)(input_layer). The layer instance is called with the previous tensor as its argument.'}
+
+,{m:'Programming Mock 2026', mock:true,
+  q:'When using pd.get_dummies() for one-hot encoding, why should you use drop_first=True?',
+  o:['It speeds up computation by reducing the number of columns',
+     'It avoids the dummy variable trap (perfect multicollinearity) by dropping one redundant category',
+     'It ensures all remaining columns have zero mean',
+     'It removes the most common category which is usually uninformative'],
+  a:1,
+  e:'With K categories, K-1 dummies fully encode the information. Keeping all K creates perfect multicollinearity (dummy variable trap). drop_first=True removes one column to prevent this.'}
+
+,{m:'Programming Mock 2026', mock:true,
+  q:'In an LSTM sequence-to-sequence model, what layer should be placed after the encoder LSTM to allow the decoder LSTM to process a sequence? Line 1: encoder_input = Input(shape=(timesteps, features))  Line 2: encoded = LSTM(latent_dim, return_sequences=False)(encoder_input)  Line 3: ???  Line 4: decoded = LSTM(features, return_sequences=True)(repeated)',
+  o:['A Dense(latent_dim) layer',
+     'A RepeatVector(timesteps) layer assigned to repeated',
+     'A Reshape((1, latent_dim)) layer',
+     'A Flatten() layer'],
+  a:1,
+  e:'RepeatVector(timesteps) repeats the encoder\'s context vector T times, creating a (batch, timesteps, latent_dim) tensor that the decoder LSTM can process as a sequence.'}
+
+,{m:'Programming Mock 2026', mock:true,
+  q:'Which of the following pandas indexing statements is INCORRECT for accessing a value at date \'2023-01-01\' in the first column of a time-indexed DataFrame?',
+  o:['df.loc[\'2023-01-01\', df.columns[0]]',
+     'df.loc[\'2023-01-01\'][df.columns[0]]',
+     'df[\'2023-01-01\':\'2023-01-01\'][df.columns[0]].iloc[0]',
+     'df.iloc[\'2023-01-01\', 0]'],
+  a:3,
+  e:'df.iloc uses integer-based indexing — passing a string date label to iloc raises a TypeError. To access by label you must use df.loc, not df.iloc.'}
+
+,{m:'Programming Mock 2026', mock:true,
+  q:'What happens if you call model.predict() before model.fit() in scikit-learn?',
+  o:['predict() returns all zeros as a default output',
+     'predict() raises a NotFittedError because the model has not been trained yet',
+     'predict() silently trains the model on the test data before predicting',
+     'predict() returns random predictions based on the initial weights'],
+  a:1,
+  e:'Scikit-learn estimators raise a NotFittedError (or similar) if predict() is called before fit(). You must fit the model on training data before making predictions.'}
+
 ];
 
 // ════════════════════════════════════════════════
