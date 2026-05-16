@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS&ML for Finance — Exam Practice</title>
+<style>
+  :root {
+    --navy:#1A3A6B;--blue:#2E75B6;--lblue:#D5E8F0;
+    --green:#1a7a3c;--lgreen:#d4edda;--red:#b03030;--lred:#fde8e8;
+    --text:#1a1a2e;--muted:#666;--bg:#f4f7fb;--card:#fff;--border:#dde4ed;
+    --mock:#b35c00;--lmock:#fff3e0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);}
+  header{background:var(--navy);color:white;padding:18px 32px;}
+  header h1{font-size:1.2rem;font-weight:700;}
+  header p{font-size:0.8rem;opacity:0.7;margin-top:3px;}
+  .tabs{display:flex;background:white;border-bottom:2px solid var(--border);padding:0 32px;}
+  .tab{padding:13px 26px;cursor:pointer;font-weight:600;font-size:0.93rem;color:var(--muted);
+       border-bottom:3px solid transparent;margin-bottom:-2px;transition:all 0.2s;}
+  .tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+  .tab:hover:not(.active){color:var(--navy);background:var(--bg);}
+  .section{display:none;padding:28px 32px;max-width:860px;margin:0 auto;}
+  .section.active{display:block;}
+  .btn{padding:8px 18px;border-radius:6px;border:none;cursor:pointer;font-size:0.87rem;font-weight:600;transition:all 0.18s;}
+  .btn-outline{background:white;border:2px solid var(--blue);color:var(--blue);}
+  .btn-outline:hover{background:var(--lblue);}
+  .btn-primary{background:var(--blue);color:white;}
+  .btn-primary:hover{background:var(--navy);}
+  /* Flashcards */
+  .fc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .fc-top h2{font-size:1.05rem;color:var(--navy);}
+  .fc-controls{display:flex;gap:8px;align-items:center;}
+  .cat-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+  .cat-btn{padding:4px 12px;border-radius:20px;font-size:0.76rem;font-weight:600;
+           cursor:pointer;border:2px solid var(--border);background:white;color:var(--muted);transition:all 0.18s;}
+  .cat-btn.active{background:var(--navy);color:white;border-color:var(--navy);}
+  .fc-hint{text-align:center;font-size:0.78rem;color:var(--muted);margin-bottom:8px;}
+  .fc-scene{width:100%;perspective:1200px;margin-bottom:22px;}
+  .fc-card{width:100%;min-height:210px;position:relative;transform-style:preserve-3d;
+           transition:transform 0.5s cubic-bezier(.4,.2,.2,1);cursor:pointer;}
+  .fc-card.flipped{transform:rotateY(180deg);}
+  .fc-face{position:absolute;width:100%;min-height:210px;backface-visibility:hidden;
+           border-radius:14px;padding:32px 36px;display:flex;flex-direction:column;justify-content:center;}
+  .fc-front{background:var(--card);border:2px solid var(--border);box-shadow:0 4px 18px rgba(0,0,0,0.07);}
+  .fc-back{background:var(--navy);color:white;transform:rotateY(180deg);}
+  .fc-front .cat-label{font-size:0.73rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:12px;}
+  .fc-front .fc-q{font-size:1.15rem;font-weight:600;line-height:1.5;color:var(--navy);}
+  .fc-back .fc-a{font-size:1rem;line-height:1.65;}
+  .fc-back .fc-tip{margin-top:14px;padding:9px 13px;background:rgba(255,255,255,0.12);border-left:3px solid #a78bfa;border-radius:4px;font-size:0.86rem;}
+  .fc-nav{display:flex;align-items:center;justify-content:center;gap:14px;}
+  .btn-round{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
+  /* Quiz */
+  .q-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .score-badge{background:var(--navy);color:white;padding:5px 15px;border-radius:20px;font-size:0.83rem;font-weight:700;}
+  .prog-wrap{flex:1;min-width:150px;height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+  .prog-bar{height:100%;background:var(--blue);border-radius:4px;transition:width 0.35s;}
+  .q-card{background:var(--card);border-radius:14px;border:2px solid var(--border);
+          padding:28px 32px;box-shadow:0 4px 18px rgba(0,0,0,0.06);}
+  .q-card.mock-card{border-color:var(--mock);}
+  .q-mod{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);margin-bottom:9px;}
+  .q-mod.mock-mod{color:var(--mock);}
+  .q-text{font-size:1.08rem;font-weight:600;color:var(--navy);line-height:1.55;margin-bottom:22px;}
+  .q-code{background:#f5f7fa;border:1px solid #c8d6e5;border-left:4px solid var(--blue);
+          border-radius:6px;padding:14px 18px;margin:14px 0 20px;
+          font-family:'Courier New',Consolas,monospace;font-size:0.84rem;line-height:1.75;
+          white-space:pre;color:#1a1a2e;overflow-x:auto;}
+  .options{display:flex;flex-direction:column;gap:9px;}
+  .opt{padding:12px 16px;border-radius:8px;border:2px solid var(--border);background:white;
+       cursor:pointer;font-size:0.93rem;text-align:left;transition:all 0.16s;
+       display:flex;align-items:flex-start;gap:10px;}
+  .opt:hover:not(.disabled){border-color:var(--blue);background:var(--lblue);}
+  .opt .ol{font-weight:700;min-width:20px;color:var(--blue);}
+  .opt.correct{background:var(--lgreen);border-color:var(--green);color:var(--green);}
+  .opt.correct .ol{color:var(--green);}
+  .opt.wrong{background:var(--lred);border-color:var(--red);color:var(--red);}
+  .opt.wrong .ol{color:var(--red);}
+  .opt.disabled{cursor:default;}
+  .feedback{margin-top:18px;padding:13px 16px;border-radius:8px;font-size:0.9rem;line-height:1.55;display:none;}
+  .feedback.correct{background:var(--lgreen);border-left:4px solid var(--green);color:#155724;}
+  .feedback.wrong{background:var(--lred);border-left:4px solid var(--red);color:#721c24;}
+  .q-actions{margin-top:20px;display:flex;justify-content:flex-end;gap:10px;}
+  .end{text-align:center;padding:48px 24px;display:none;}
+  .end.active{display:block;}
+  .end-score{font-size:3.2rem;font-weight:800;color:var(--navy);}
+  .end-score span{font-size:1.2rem;font-weight:400;color:var(--muted);}
+  .end-msg{font-size:1rem;margin:14px auto 28px;color:var(--muted);max-width:500px;}
+  .end-btns{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+  .mock-badge{display:inline-block;background:var(--lmock);color:var(--mock);
+              border:1px solid var(--mock);border-radius:12px;font-size:0.7rem;
+              font-weight:700;padding:2px 8px;margin-left:6px;vertical-align:middle;}
+  @media(max-width:580px){
+    .section{padding:18px 14px;}.fc-face{padding:22px 18px;}.q-card{padding:20px 16px;}
+    .tabs{padding:0 14px;}.tab{padding:11px 12px;font-size:0.82rem;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>📊 DS&ML for Finance — Exam Practice</h1>
+  <p>21046 · Bocconi · Prof. Corielli · 2026 &nbsp;·&nbsp; 10 MCQ × 3 pts · 50 min · Closed book</p>
+</header>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('flashcards')">🃏 Flashcards</div>
+  <div class="tab" onclick="switchTab('quiz')">✏️ Practice Quiz</div>
+</div>
+
+<!-- FLASHCARDS -->
+<div id="flashcards" class="section active">
+  <div class="fc-top">
+    <div>
+      <h2>Flashcards <span id="fc-progress" style="font-size:0.83rem;color:var(--muted);font-weight:600;margin-left:10px">1 / …</span></h2>
+      <p style="font-size:0.78rem;color:var(--muted);margin-top:3px">Click card to flip · Arrow keys to navigate · Space to flip</p>
+    </div>
+    <div class="fc-controls">
+      <button class="btn btn-outline" onclick="shuffleCards()">🔀 Shuffle</button>
+      <button class="btn btn-outline" onclick="resetCards()">↺ Reset</button>
+    </div>
+  </div>
+  <div class="cat-bar" id="fc-cats"></div>
+  <p class="fc-hint">👆 Click the card to flip it</p>
+  <div class="fc-scene">
+    <div class="fc-card" id="fc-card" onclick="flipCard()">
+      <div class="fc-face fc-front">
+        <div class="cat-label" id="fc-cat-label">Module 1</div>
+        <div class="fc-q" id="fc-q">Loading…</div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="fc-a" id="fc-a">Loading…</div>
+        <div class="fc-tip" id="fc-tip" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+  <div class="fc-nav">
+    <button class="btn btn-outline btn-round" onclick="prevCard()">←</button>
+    <button class="btn btn-primary" id="fc-flip-btn" onclick="flipCard()">Reveal answer</button>
+    <button class="btn btn-outline btn-round" onclick="nextCard()">→</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="section">
+  <div id="quiz-main">
+    <div class="q-meta">
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="score-badge" id="q-score">Score: 0 / 0</span>
+        <span style="font-size:0.82rem;color:var(--muted)" id="q-num">Question 1</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-bar" id="q-prog" style="width:1%"></div></div>
+    </div>
+    <div class="cat-bar" id="q-cats"></div>
+    <div class="q-card" id="q-card">
+      <div class="q-mod" id="q-mod">Module 1</div>
+      <div class="q-text" id="q-text">Loading…</div>
+      <div id="q-code-block" style="display:none"></div>
+      <div class="options" id="q-opts"></div>
+      <div class="feedback" id="q-fb"></div>
+    </div>
+    <div class="q-actions">
+      <button class="btn btn-outline" onclick="restartQuiz()">↺ Restart</button>
+      <button class="btn btn-primary" id="q-next" style="display:none" onclick="nextQ()">Next →</button>
+    </div>
+  </div>
+  <div class="end" id="end">
+    <div class="end-score" id="end-val">0 <span>/ 0</span></div>
+    <div class="end-msg" id="end-msg"></div>
+    <div class="end-btns">
+      <button class="btn btn-outline" onclick="restartQuiz()">🔁 Try Again</button>
+      <button class="btn btn-primary" onclick="switchTab('flashcards')">🃏 Review Flashcards</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const FC = [
+  // ── MODULE 1: ML FOUNDATIONS ──────────────────────────────────────────────
+  {c:'Module 1',q:'What is the core difference between Machine Learning and Statistics?',
+   a:'ML starts with a loss function and optimises a model to fit data — no probability model required. Statistics starts from a probability model (e.g. Gaussian linear regression), estimates parameters, and tests hypotheses.',
+   t:'Exam trap: "which approach starts with a probability model?" → Statistics, not ML.'},
+  {c:'Module 1',q:'What is overfitting, and how do you detect it?',
+   a:'Overfitting is when a model learns the noise in training data instead of true signal. Detection: training loss is very low but test/validation loss is much higher — the model memorised rather than generalised.'},
+  {c:'Module 1',q:'What does L1 (Lasso) do that L2 (Ridge) cannot?',
+   a:'L1 can drive some weights to exactly zero, creating sparse models that ignore irrelevant features entirely. L2 shrinks all weights toward zero but never reaches exactly zero.',
+   t:'L2 = sum of squared weights (smooth shrinkage). L1 = sum of absolute values (can zero out = feature selection).'},
+  {c:'Module 1',q:'When is Dropout active, and when is it off?',
+   a:'Only during training. Dropout randomly zeroes out neuron activations to prevent co-adaptation. At inference/prediction time, all neurons are fully active.',
+   t:'"Dropout helps at inference time" is FALSE.'},
+  {c:'Module 1',q:'What is the role of the validation set vs. the test set?',
+   a:'Validation set monitors overfitting during training — weights are never updated based on it. The test set is used exactly once at the very end to report final performance. Using the test set during development makes results dishonest.',
+   t:'validation_split in Keras draws from training data only — never from the held-out test set.'},
+  {c:'Module 1',q:'What is the bias-variance tradeoff?',
+   a:'Bias = error from wrong model assumptions (underfitting — too simple). Variance = error from sensitivity to small data changes (overfitting — too complex). A complex model has low bias but high variance. Regularisation finds the balance.'},
+  {c:'Module 1',q:'What is cross-entropy loss, and when is it used?',
+   a:'Cross-entropy measures how well predicted probabilities match true class labels. Binary cross-entropy is used with sigmoid for two-class problems. Categorical cross-entropy is used with softmax for multi-class problems. Both penalise confident wrong predictions harshly.'},
+  {c:'Module 1',q:'What happens when the learning rate is too high or too low?',
+   a:'Too high: training diverges — loss oscillates or explodes, weights never settle. Too low: training is very slow, may get stuck in a local minimum and never converge. Adam adapts the learning rate per parameter automatically, making it robust.'},
+
+  // ── MODULE 2: CLASSICAL ML ────────────────────────────────────────────────
+  {c:'Module 2',q:'What is Ridge Regression, and when does it equal OLS?',
+   a:'Ridge adds a penalty α × sum(w²) to the OLS loss, shrinking all weights toward zero. When α=0, it reduces to pure OLS. As α increases, weights shrink more. It requires StandardScaler because the penalty treats all weights equally.'},
+  {c:'Module 2',q:'What is the difference between logit and probit?',
+   a:'Both solve binary classification. Logit uses the sigmoid function as the link. Probit uses the standard normal CDF (Φ). They give almost identical results in practice — the only difference is the link function.',
+   t:'Logit → sigmoid. Probit → normal CDF. Same purpose, nearly same results.'},
+  {c:'Module 2',q:'Why is Random Forest more accurate than a single decision tree?',
+   a:'It trains many trees on different random subsets of data and features, then averages predictions. Each tree makes different errors, and averaging cancels them out — this reduces variance while keeping bias similar.',
+   t:'Key words: bagging + random feature selection = decorrelated trees = reduced variance.'},
+  {c:'Module 2',q:'What are the 3 PCA factors of the yield curve?',
+   a:'PC1 (~85%) = Level: all maturities move together (parallel shift). PC2 (~10%) = Slope: short vs long rates move opposite. PC3 (~3%) = Curvature: ends move opposite to middle. Together ~99% of variation. (Litterman & Scheinkman 1991)',
+   t:'Most likely exam question on yield curve PCA.'},
+  {c:'Module 2',q:'Why is accuracy a bad metric for fraud detection?',
+   a:'Datasets are heavily imbalanced — 99%+ of transactions are legitimate. A model predicting "normal" always achieves 99% accuracy while catching zero fraud. Use Precision, Recall, and F1 instead.'},
+  {c:'Module 2',q:'What does max_depth control in a Decision Tree?',
+   a:'It limits how deep the tree can grow. A very deep tree memorises training data (overfitting — one leaf per point). A shallow tree may underfit. max_depth is the primary regularisation hyperparameter for decision trees.'},
+  {c:'Module 2',q:'Why does KNN require StandardScaler but Decision Trees do not?',
+   a:'KNN measures Euclidean distance — a feature in large units (e.g. salary in thousands) will dominate a feature in small units (e.g. age), distorting distances. Decision trees split on thresholds and are completely scale-invariant.'},
+  {c:'Module 2',q:'What is the purpose of k-fold cross-validation?',
+   a:'To estimate out-of-sample performance robustly and select hyperparameters — all without touching the test set. Splits training data into k folds, trains on k−1, evaluates on 1, rotates k times. sklearn\'s GridSearchCV uses this internally.'},
+  {c:'Module 2',q:'What is a Gini impurity and what does it measure in a decision tree?',
+   a:'Gini impurity measures how mixed the class labels are in a node: Gini = 1 − Σpᵢ². A pure node (all same class) has Gini = 0. The tree splits to minimise weighted Gini — finding the most informative split. Alternative: entropy/information gain.'},
+
+  // ── MODULE 3: NEURAL NETWORKS ─────────────────────────────────────────────
+  {c:'Module 3',q:'Output activation + loss for each task type?',
+   a:'Regression: Linear activation + MSE. Binary classification: Sigmoid + Binary Cross-Entropy. Multi-class: Softmax + Categorical Cross-Entropy.',
+   t:'Getting these wrong is the most common Keras mistake on the exam.'},
+  {c:'Module 3',q:'What must come before fit() in Keras, and why?',
+   a:'compile() must come before fit(). compile() sets the optimiser, loss function, and metrics — it tells the model how to learn. Without it, fit() raises an error.',
+   t:'Single most-tested Keras fact in this course.'},
+  {c:'Module 3',q:'What is the Universal Approximation Theorem?',
+   a:'A sufficiently large MLP can approximate any continuous function to arbitrary precision. This is theoretical — it guarantees expressiveness, not that the model will actually learn the right function from limited data.',
+   t:'"Universal approximation = NNs always work" is FALSE.'},
+  {c:'Module 3',q:'A NN with linear activation and MSE loss equals what?',
+   a:'OLS (ordinary least squares). Both minimise sum of squared residuals. Gradient descent on a linear NN converges to the same solution as the OLS analytical formula. Adding non-linear activations gives NNs power beyond OLS.',
+   t:'Demonstrated in the A06b exercise.'},
+  {c:'Module 3',q:'What does Adam do that SGD does not?',
+   a:'Adam adapts the learning rate individually for each weight using the running mean (1st moment) and variance (2nd moment) of past gradients. SGD uses a single fixed learning rate for all parameters. Adam typically converges faster.'},
+  {c:'Module 3',q:'What is early stopping, and what parameter controls its patience?',
+   a:'Early stopping monitors validation loss and halts training when it stops improving for a set number of epochs (the "patience" parameter). This prevents overfitting from continued training long after the optimal point has passed.'},
+  {c:'Module 3',q:'Why is ReLU preferred over sigmoid in hidden layers?',
+   a:'Sigmoid saturates (outputs near 0 or 1 for large inputs), causing near-zero gradients in earlier layers — the vanishing gradient problem. ReLU (max(0,x)) has a constant gradient of 1 for positive inputs, avoiding this and training much faster.'},
+  {c:'Module 3',q:'When do you need the Keras Functional API instead of Sequential?',
+   a:'When you need multiple inputs/outputs, shared layers, or to extract intermediate outputs — e.g. building an autoencoder where you must access the encoder separately from the full model. Sequential can only stack layers linearly.'},
+  {c:'Module 3',q:'What is a batch, an epoch, and what is mini-batch gradient descent?',
+   a:'Batch = a group of training samples processed together before updating weights. Epoch = one full pass through the training data. Mini-batch GD updates weights after each batch (not after every sample, not after the whole dataset) — the standard in practice.'},
+  {c:'Module 3',q:'What is the key difference between Keras and PyTorch?',
+   a:'Keras: define model → compile() → fit() — training loop is automatic, high-level. PyTorch: write the training loop yourself with loss.backward() and optimizer.step() — lower-level, more control. Both use automatic differentiation. Keras = rapid prototyping; PyTorch = dominant in research.',
+   t:'Keras = automatic loop. PyTorch = manual loop. Same models, different workflows.'},
+
+  // ── MODULE 4: AUTOENCODERS ────────────────────────────────────────────────
+  {c:'Module 4',q:'What is the purpose of the bottleneck in an autoencoder?',
+   a:'To force the model to compress the input into a compact representation. The bottleneck is too narrow to copy the input through — the model must keep only the most essential features.',
+   t:'Most frequently tested autoencoder fact.'},
+  {c:'Module 4',q:'How does a non-linear autoencoder differ from PCA?',
+   a:'PCA finds linear directions of maximum variance; components must be orthogonal. A non-linear AE (with ReLU activations) can discover curved, non-linear structure that PCA cannot. PCA is a special case of a linear AE.',
+   t:'Linear AE ≈ PCA but without the orthogonality constraint.'},
+  {c:'Module 4',q:'How does an autoencoder detect fraud?',
+   a:'Train only on normal transactions. Fraud looks nothing like the training data, so it is reconstructed poorly → high reconstruction error = anomaly signal. The model learns "normal", not "fraud". No fraud labels needed at training time.'},
+  {c:'Module 4',q:'What is the rich/cheap signal from an autoencoder?',
+   a:'The model reconstructs a fair-value estimate from latent factors. Actual > fair value → bond is "rich" (expensive) → sell. Actual < fair value → bond is "cheap" → buy. Suimon et al. (2020) applied this to Japanese Government Bonds.'},
+  {c:'Module 4',q:'What is reconstruction error in an autoencoder?',
+   a:'Reconstruction error = the loss between the original input and the decoder\'s output, typically MSE. It measures how well the bottleneck representation can reproduce the original data. High error signals an unusual or anomalous input.'},
+  {c:'Module 4',q:'What is a denoising autoencoder, and why is it useful?',
+   a:'A denoising AE is trained to reconstruct clean inputs from deliberately corrupted (noisy) inputs. This forces the model to learn robust features rather than just copying the input. It is more useful than a standard AE when data is noisy.'},
+  {c:'Module 4',q:'Why does the bond-hedging autoencoder use a 3-neuron bottleneck?',
+   a:'PCA consistently identifies 3 dominant factors in yield curves (Level, Slope, Curvature) accounting for ~99% of variation. The 3-neuron bottleneck forces the model to summarise all 15 swap rates into those same 3 latent dimensions.'},
+
+  // ── MODULE 5: SEQUENCE MODELS & TRANSFORMERS ─────────────────────────────
+  {c:'Module 5',q:'What is an embedding in a language model?',
+   a:'A dense learned vector representing a discrete token. Similar tokens end up near each other in vector space after training. Embeddings are learned parameters — unlike positional encodings which are computed, not trained.'},
+  {c:'Module 5',q:'How many trainable parameters do positional encodings have?',
+   a:'Zero. They are generated by a fixed sinusoidal formula and added to token embeddings. They encode position information but are computed, not learned.',
+   t:'"Positional encodings have trainable parameters" is FALSE.'},
+  {c:'Module 5',q:'What problem does an LSTM solve vs. a vanilla RNN?',
+   a:'The vanishing gradient problem. In a vanilla RNN, gradients shrink exponentially through many time steps. The LSTM cell state provides a direct path for gradient flow across long sequences, enabling learning of long-range dependencies.'},
+  {c:'Module 5',q:'What are the three LSTM gates and their roles?',
+   a:'Forget gate: decides what to remove from long-term memory (cell state). Input gate: decides what new information to write into memory. Output gate: decides what to output as the hidden state.',
+   t:'LSTM has ~4x more parameters than an equivalent RNN due to these 4 weight matrices.'},
+  {c:'Module 5',q:'Transformer vs RNN: what is the key architectural difference?',
+   a:'RNNs process tokens sequentially — position n must wait for n−1. Transformers process all positions in parallel via self-attention, enabling much faster training and scaling to larger models.',
+   t:'"RNN is parallel" and "Transformer is sequential" are both FALSE.'},
+  {c:'Module 5',q:'What is layer normalisation and why is it used in Transformers?',
+   a:'Layer norm standardises each token\'s feature vector (mean 0, std 1) and applies learnable scale and shift. Applied before attention and feedforward in each Transformer block to keep activations stable across many layers.'},
+  {c:'Module 5',q:'What is self-attention, and what are Q, K, V?',
+   a:'Self-attention lets each token look at all other tokens to build context. Q (Query) = what this token is looking for. K (Key) = what each token offers. V (Value) = the content to aggregate. Attention = softmax(QKᵀ/√d) × V.'},
+  {c:'Module 5',q:'What is the forget gate in an LSTM computing?',
+   a:'The forget gate computes sigmoid([hₜ₋₁, xₜ]), producing values between 0 and 1 for each cell state dimension. Values near 0 erase that memory; values near 1 preserve it. It is how the LSTM decides what to forget from the previous time step.'},
+
+  // ── MODULE 6: LLMs & GENERATIVE AI ───────────────────────────────────────
+  {c:'Module 6',q:'What is LoRA and why is it efficient?',
+   a:'Low-Rank Adaptation. Freezes the original weights W₀ and trains only two small matrices B and A: W = W₀ + B·A. Because B and A are tiny (rank r << dimensions), far fewer parameters need training. W₀ is never changed.',
+   t:'"LoRA trains all weights" is FALSE — W₀ is completely frozen.'},
+  {c:'Module 6',q:'What is RAG and what does it solve?',
+   a:'Retrieval-Augmented Generation. At inference time, retrieves relevant document chunks from a vector database and prepends them to the prompt, grounding the response in specific documents and reducing hallucinations.',
+   t:'"RAG changes model weights" is FALSE — it works entirely at inference time.'},
+  {c:'Module 6',q:'What is perplexity and which direction is better?',
+   a:'Perplexity = exp(average cross-entropy loss on real text). Lower = better. A model with perplexity 10 is as uncertain as if choosing uniformly among 10 next tokens. It measures how surprised the model is by real language.'},
+  {c:'Module 6',q:'What is FAISS used for in RAG?',
+   a:'FAISS (Facebook AI Similarity Search) is a library for fast approximate nearest-neighbour search in vector space. In RAG, it finds the document chunks whose embedding vectors are most similar to the query embedding.'},
+  {c:'Module 6',q:'Why do LLMs hallucinate?',
+   a:'LLMs predict the statistically most likely next token — they have no internal fact-checking layer. If a confident but incorrect completion is common in training data, the model generates it confidently. Hallucinations are a consequence of next-token prediction, not bugs.'},
+  {c:'Module 6',q:'Fine-tuning vs RAG: when would you use each?',
+   a:'Fine-tuning changes model weights to adapt behaviour/tone/style — requires training. RAG retrieves fresh external documents at inference time without changing weights. RAG is preferred when information changes frequently (e.g. company documents, recent news). Fine-tuning for persistent style or domain adaptation.'},
+
+  // ── MODULE 7: STATISTICAL METHODS & FINANCE ───────────────────────────────
+  {c:'Module 7',q:'"Statistical significance ≠ practical relevance" — what does this mean?',
+   a:'With a large enough sample, even a negligibly small effect produces a huge t-statistic. "Significant" means we are confident the effect is not exactly zero — not that it is large enough to matter. Always check semi-partial R², not just the p-value.',
+   t:'With n=10,000, a variable explaining 0.1% of variance can have t-statistic above 3.'},
+  {c:'Module 7',q:'What is beta (β) in r_i = α + β × r_market + ε?',
+   a:'Beta measures how sensitive a stock is to market movements. Beta=1.5: when market rises 1%, stock tends to rise 1.5%. It captures systematic risk — the part that cannot be diversified away.',
+   t:'Beta is estimated by OLS regression of stock excess returns on market excess returns.'},
+  {c:'Module 7',q:'What does diversification remove, and what can it not remove?',
+   a:'Diversification removes idiosyncratic (firm-specific) risk. It cannot remove systematic (market) risk — the common factor all stocks share. The first PC of stock returns captures this unavoidable component.',
+   t:'"Diversification eliminates all risk" is FALSE.'},
+  {c:'Module 7',q:'What is cointegration?',
+   a:'Two individually non-stationary (I(1), trending) series are cointegrated if their linear combination is stationary (I(0)) — the spread fluctuates around a stable mean rather than drifting. This is the mathematical basis for pairs trading.'},
+  {c:'Module 7',q:'What is Fisher\'s Linear Discriminant Analysis (LDA)?',
+   a:'LDA finds the linear combination of features that maximises the ratio of between-class variance to within-class variance. Assumes Gaussian classes with equal covariance. Altman (1968) applied LDA to financial ratios to build the Z-score for bankruptcy prediction.'},
+  {c:'Module 7',q:'What is average linkage in hierarchical clustering?',
+   a:'Average linkage defines the distance between two clusters as the average of all pairwise distances between their points: d(Cᵢ,Cⱼ) = (1/|Cᵢ||Cⱼ|) × Σ d(x,y). More robust than single or complete linkage; tends to produce balanced clusters.'},
+  {c:'Module 7',q:'What is Mahalanobis distance, and how does it differ from Euclidean?',
+   a:'Mahalanobis: d = √((x−y)ᵀ Σ⁻¹ (x−y)). The inverse covariance matrix accounts for correlations between features and their different scales. Euclidean ignores correlations. Mahalanobis is equivalent to Euclidean after standardising and decorrelating.'},
+  {c:'Module 7',q:'Under CAPM, what should alpha (α) be for any stock in equilibrium?',
+   a:'Alpha should be close to zero. CAPM states all expected excess return is compensation for beta risk alone. Any persistent positive alpha would attract capital until arbitraged away. Finding non-zero alpha is the goal of active management.',
+   t:'α = Jensen\'s Alpha. Small but genuine alphas do exist in practice.'},
+  {c:'Module 7',q:'What is semi-partial R², and why is it more useful than a p-value?',
+   a:'Semi-partial R² measures how much unique variance a predictor explains in the outcome — its practical contribution independent of other predictors. A p-value only tells you whether an effect is non-zero, not whether it is large enough to matter.'},
+
+  // ── MODULE 8: FIXED INCOME ────────────────────────────────────────────────
+  {c:'Module 8',q:'What is the Asset Swap Spread (ASW)?',
+   a:'ASW = bond yield − swap rate of same maturity. Positive ASW = bond pays more than benchmark → positive carry for a hedged investor who borrows at floating (Euribor) and holds fixed-coupon bonds.',
+   t:'A positive ASW means the bond is "cheap" relative to the swap curve — a buying signal.'},
+  {c:'Module 8',q:'How does yield curve PCA hedging work?',
+   a:'Express each bond\'s sensitivity to the 3 PCA factors (Level, Slope, Curvature) via DV01-weighted factor loadings. Hedge by holding offsetting positions in liquid instruments (futures, swaps) that cancel your factor exposures, especially to PC1 (Level).'},
+  {c:'Module 8',q:'What is DV01, and why does it matter for bond hedging?',
+   a:'DV01 = Dollar Value of a 1 basis point move — the change in bond price for a 0.01% change in yield. It measures interest rate sensitivity. Matching DV01 across instruments ensures that a parallel yield shift leaves the portfolio unchanged.'},
+  {c:'Module 8',q:'Why use a rolling window when training the bond AE model?',
+   a:'Financial relationships change over time (regime changes, policy shifts). Training on the most recent window keeps the model\'s latent factors current with the prevailing yield curve regime and avoids stale factor loadings from distant past data.'},
+  {c:'Module 8',q:'What does the Suimon et al. (2020) AE model output, and how is it traded?',
+   a:'The encoder compresses 15 swap rates into 3 latent factors; the decoder reconstructs fair-value estimates. The difference between actual yield and model fair value is the rich/cheap signal: actual > fair → sell (rich); actual < fair → buy (cheap).'},
+
+  // ── MODULE 9: STATISTICAL ARBITRAGE & ECM ─────────────────────────────────
+  {c:'Module 9',q:'What is the stat arb P&L formula and when does it work?',
+   a:'P&L = −sign(eₜ₋₁) × (eₜ − eₜ₋₁). If the error was positive yesterday (asset expensive), bet it shrinks. Earns money when errors are negatively autocorrelated (mean-reverting). Random walk errors → zero expected profit.',
+   t:'"Strategy works with any error structure" is FALSE.'},
+  {c:'Module 9',q:'What is the Engle-Granger two-step test for cointegration?',
+   a:'Step 1: regress one series on the other (OLS). Step 2: test whether the residuals are stationary using ADF (Augmented Dickey-Fuller). If residuals are I(0) (stationary), the two series are cointegrated and share a long-run relationship.'},
+  {c:'Module 9',q:'What is the ECM stability condition for mean reversion?',
+   a:'The condition is −2 < (α₁ − γα₂) < 0. This ensures deviations are corrected back toward equilibrium. If =0: random walk (no correction). If >0: deviations explode. Must be strictly negative for mean reversion to occur.'},
+  {c:'Module 9',q:'Why use returns rather than price levels for equity pairs trading?',
+   a:'Two correlated stock prices are both I(1) — non-stationary/trending. Price-level regression residuals are often non-stationary too. Return-based spreads tend to be stationary — a stable, predictable series that ML models can learn from.'},
+  {c:'Module 9',q:'Why is statistical arbitrage not risk-free like classical arbitrage?',
+   a:'Classical arbitrage exploits identical securities at different prices — truly riskless. Stat arb bets that a historically observed relationship will continue. The spread can widen before reverting (convergence risk), causing losses before eventual profit.'},
+  {c:'Module 9',q:'What is the core idea of pairs trading?',
+   a:'Find two assets whose prices are cointegrated (they share a stable long-run relationship). When the spread widens, buy the cheap one and short the expensive one, betting the spread reverts to its mean. Profit when it converges.'},
+
+  // ── MODULE 10: DEEP LEARNING IN FINANCE ───────────────────────────────────
+  {c:'Module 10',q:'What is Deep Hedging (Bühler et al. 2019)?',
+   a:'A reinforcement learning / deep learning approach where an agent learns optimal hedging strategies from simulated market trajectories, without Black-Scholes assumptions. Naturally handles transaction costs, discrete rebalancing, and stochastic volatility.',
+   t:'Deep Hedging replaces the Black-Scholes delta-hedging formula with a learned policy.'},
+  {c:'Module 10',q:'What did Krauss et al. (2017) do, and what was their key finding?',
+   a:'Applied ML (LSTM, random forest, deep NN) to S&P 500 pairs trading using return-based spreads. Key finding: ML models detect subtle non-linear patterns in mean-reverting spreads that linear ECM models miss, improving P&L out-of-sample.',
+   t:'They used returns (not price levels) to construct stationary spread series.'},
+  {c:'Module 10',q:'Why are returns used instead of price levels in the Krauss et al. framework?',
+   a:'Stock price levels are I(1) non-stationary — trending over time. Return-based spreads are stationary (or close to it). ML models need stationary inputs to find stable predictable patterns rather than spurious trending relationships.'},
+  {c:'Module 10',q:'What is the "useless variance" problem in finance ML?',
+   a:'A model trained on random (pure noise) data still appears to learn in-sample — it overfits to noise, producing useless variance. Only out-of-sample evaluation reveals whether the model captured real signal. In-sample accuracy is meaningless alone.'},
+  {c:'Module 10',q:'Why does Deep Hedging handle transaction costs better than Black-Scholes?',
+   a:'Black-Scholes assumes continuous costless trading — in practice, every trade costs money. Deep Hedging trains the agent in a simulated market with transaction costs built in, so it learns to trade less aggressively — a policy adapted to real frictions.'},
+
+  // ── KEY PAPERS ────────────────────────────────────────────────────────────
+  {c:'Key Papers',q:'King (1966) — what was the first finding?',
+   a:'The first academic paper to apply factor analysis to stock returns. King found a common market factor plus industry factors — the beginning of the systematic equity factor model tradition. He identified that stocks move together for reasons beyond chance.'},
+  {c:'Key Papers',q:'Altman (1968) — method and application?',
+   a:'Applied Fisher\'s Linear Discriminant Analysis to five financial ratios to predict corporate bankruptcy. The result was the Altman Z-score — still used today. He cited Durand (1941) who first applied discriminant analysis to consumer credit.'},
+  {c:'Key Papers',q:'Grossman & Stiglitz (1980) — what is the paradox?',
+   a:'If markets were fully informationally efficient, no one would bother collecting information (no reward). But if nobody collects it, prices cannot be efficient. Conclusion: markets are never perfectly efficient — stat arb traders enforce efficiency and earn a reward for doing so.'},
+  {c:'Key Papers',q:'Litterman & Scheinkman (1991) — what did they find?',
+   a:'Three PCA factors explain ~99% of US yield curve variation: Level (PC1 ~85%), Slope (PC2 ~10%), Curvature (PC3 ~3%). These factors are consistent across time and markets. This became the foundation for yield curve risk management.'},
+  {c:'Key Papers',q:'Gatev, Goetzmann & Rouwenhorst (2006) — what did they show?',
+   a:'Academic validation of pairs trading on US equities. They showed the strategy earned significant positive returns over 1962–2002 using a simple distance-based pair selection and a 12-month formation window. A rare formal academic endorsement of a stat arb strategy.'},
+  {c:'Key Papers',q:'Suimon, Nakagawa et al. (2020) — what did they do?',
+   a:'Applied a 3-factor autoencoder to the Japanese Government Bond yield curve. The encoder extracted 3 latent factors; reconstruction errors identified rich/cheap bonds. The strategy generated positive out-of-sample P&L on JGB trades.'},
+  {c:'Key Papers',q:'Krauss, Do & Huck (2017) — what was the key result?',
+   a:'Compared ML methods (LSTM, deep NN, gradient boosting, random forest) to classical stat arb on S&P 500 pairs. ML methods outperformed classical pairs trading out-of-sample by detecting non-linear mean reversion signals invisible to linear models.'},
+  {c:'Key Papers',q:'Bühler, Gonon, Teichmann & Wood (2019) — what is Deep Hedging?',
+   a:'Proposed training a neural network (acting as a hedging agent) via reinforcement learning on simulated market paths. The NN learns the optimal hedging policy without Black-Scholes assumptions, handling transaction costs and market frictions naturally.'},
+
+// ── Module 2 additions ────────────────────────────────────────────────────
+{c:'Module 2', q:'What is the difference between Bagging and Boosting?', a:'Bagging trains multiple models in PARALLEL on bootstrap samples and averages predictions (e.g., Random Forest). Boosting trains models SEQUENTIALLY, each correcting errors of the previous (e.g., AdaBoost, XGBoost).', t:'Key word: Bagging = parallel + average; Boosting = sequential + correct errors.'}
+,{c:'Module 2', q:'What is Canonical Correlation Analysis (CCA)?', a:'CCA finds pairs of linear combinations — one from each of two datasets — such that the correlation between each pair is maximized. It generalises PCA to two-dataset settings.'}
+,{c:'Module 2', q:'Is K-Means a supervised or unsupervised algorithm?', a:'K-Means is UNSUPERVISED. It groups data into K clusters based on feature similarity without using any class labels.', t:'No labels = unsupervised. K-Means minimises within-cluster variance.'}
+
+// ── Module 3 additions ────────────────────────────────────────────────────
+,{c:'Module 3', q:'What does return_sequences=True do in a Keras RNN/LSTM layer?', a:'return_sequences=True returns the hidden state at EVERY time step as a sequence. return_sequences=False (default) returns only the LAST hidden state. Use True when stacking RNN layers or building seq2seq encoders.'}
+,{c:'Module 3', q:'What is a RepeatVector layer in Keras and when do you use it?', a:'RepeatVector(n) repeats the input vector n times to produce a (batch, n, features) tensor. Used in seq2seq autoencoders to bridge the encoder\'s fixed-length vector and the decoder\'s sequence input.'}
+,{c:'Module 3', q:'What is the dummy variable trap and how do you avoid it?', a:'When one-hot encoding K categories, using all K columns creates perfect multicollinearity (dummy variable trap) because they sum to 1. Avoid it by dropping one column: pd.get_dummies(df, drop_first=True).', t:'drop_first=True is the standard fix.'}
+
+// ── Module 4 additions ────────────────────────────────────────────────────
+,{c:'Module 4', q:'What is the relationship between a linear Autoencoder and PCA?', a:'A linear autoencoder trained with MSE loss learns to project data onto the same SUBSPACE as the top PCA components. The individual axes may differ (they are not necessarily the eigenvectors), but the spanned subspace is the same.'}
+,{c:'Module 4', q:'Is LDA (Linear Discriminant Analysis) supervised or unsupervised?', a:'LDA is SUPERVISED — it requires class labels to find directions that maximise between-class variance and minimise within-class variance. This means it CANNOT be applied to unlabeled data, unlike PCA or Autoencoders.', t:'Exam trap: "Both AE and LDA work on unlabeled data" is FALSE.'}
+
+// ── Module 5 additions ────────────────────────────────────────────────────
+,{c:'Module 5', q:'What is the causal mask in a decoder-only transformer?', a:'The causal (autoregressive) mask sets future positions to −∞ before the softmax in self-attention, ensuring that when predicting token t the model can only attend to tokens 1…t. This enables left-to-right text generation.'}
+
+// ── Module 6 (LLMs) additions ─────────────────────────────────────────────
+,{c:'Module 6', q:'What is a Large Language Model (LLM) at its core?', a:'An LLM is a parameterised function (a deep neural network) that maps token embeddings to a probability distribution (logits) over the vocabulary, enabling next-token prediction and text generation.'}
+,{c:'Module 6', q:'What loss function is used to train LLMs?', a:'Categorical Cross-Entropy over the vocabulary distribution for next-token prediction (equivalent to negative log-likelihood). At each position the model predicts the next token and is penalised by how wrong its probability distribution was.'}
+
+// ── Coding additions ──────────────────────────────────────────────────────
+,{c:'Coding', q:'How do you create a scatter plot from a pandas DataFrame?', a:'df.plot.scatter(x=\'col1\', y=\'col2\') or equivalently df.plot(kind=\'scatter\', x=\'col1\', y=\'col2\'). Requires matplotlib to be imported for plt.show().'}
+,{c:'Coding', q:'What is the difference between df.iloc and df.loc?', a:'df.loc uses LABEL-based indexing (row/column names, including date strings). df.iloc uses INTEGER position-based indexing (0, 1, 2, …). Passing a string to iloc raises a TypeError.', t:'loc = label; iloc = integer.'}
+,{c:'Coding', q:'How do you mount Google Drive in a Colab notebook?', a:'from google.colab import drive\ndrive.mount(\'/content/drive\')\nAfter mounting, files are accessible under /content/drive/MyDrive/.'}
+,{c:'Coding', q:'What is the difference between `import numpy` and `import numpy as np`?', a:'`import numpy` makes the module available only as `numpy`. Using `np.array(...)` will raise a NameError. Always use `import numpy as np` to enable the standard `np.*` shorthand.', t:'No alias → NameError on np.*'}
+,{c:'Coding', q:'What is Ridge Regression and when should you use it?', a:'Ridge Regression (L2 regularisation on linear regression) adds λΣw² to the loss, shrinking coefficients toward zero. Use it when features are highly correlated (multicollinearity) to improve numerical stability without eliminating features.'}
+
+];
+
+const QS = [
+
+// ── 🎯 Mock Exam ──────────────────────────────────────────────────────
+{m:'🎯 Mock Exam',mock:true,
+  q:'What is the purpose of using techniques such as L1 and L2 regularization in neural networks?',
+  o:['To increase the model\'s capacity','To speed up the training process','To reduce overfitting by penalizing relatively large weights','To encourage the model to learn more complex patterns'],
+  a:2,e:'to the loss function, discouraging the model from learning overly complex patterns that may not generalize well to unseen data. Options A, B, and D are incorrect because they do not accurately describe the purpose of regularization techniques.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'What is the purpose of the validation set during the training of a neural network?',
+  o:['To initialize the model\'s weights before training','To compute the loss function during training','To evaluate the model\'s performance on unseen data during training','To adjust the learning rate dynamically during training'],
+  a:2,e:'training, helping to monitor for overfitting and select the best-performing model. Options A, B, and D do not accurately describe the purpose of the validation set.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'In Keras, what is the purpose of the \'validation_split\' parameter in the \'fit()\' function?',
+  o:['To specify the percentage of the training data used for validation during training','To specify the percentage of the validation data used for training during validation','To control the learning rate during validation','To specify the percentage of the test data used for validation during training'],
+  a:0,e:'the percentage of the training data that should be used for validation during training. Options B, C, and D do not accurately describe the purpose of the \'validation_split\' parameter. In Keras website you read: validation_split: Float between 0 and 1. Fraction of the training data to be used as validation data. The model will set apart this fraction of the training data, will not train on it, and '}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'Which loss function is commonly used for regression tasks in the output layer of a neural network?',
+  o:['Mean Squared Error (MSE)','Binary Crossentropy','Categorical Crossentropy','Mean Absolute Error (MAE)'],
+  a:0,e:'average squared difference between the predicted values and the actual values, providing a measure of the model\'s performance. Options B, C, and D are typically used for classification tasks. From the theory point of view: minimizing MSE is the property which defines a regression function.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'In Keras, what does the term "batch size" refer to during the training process of a neural network?',
+  o:['The number of epochs required for training','The number of layers in the neural network architecture','The number of training examples (samples) processed in a single iteration','The number of neurons in the output layer'],
+  a:2,e:'iteration during training. Options A, B, and D do not accurately define the batch size. In Keras website you read: batch_size: Integer or None. Number of samples per gradient update. If unspecified, batch_size will default to 32.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'What is the purpose of the bottleneck layer in an autoencoder?',
+  o:['To increase the capacity of the autoencoder model.','To minimize the reconstruction error of the input data.','To prevent the autoencoder from learning the identity function.','To capture a compressed representation of the input data.'],
+  a:3,e:'compressed representation of the input data. It reduces the dimensionality of the input data while preserving its important features.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'What is the primary goal of using dropout in neural networks?',
+  o:['To improve the accuracy of the training set','To prevent overfitting by randomly dropping units during training','To increase the learning rate','To make the model more complex'],
+  a:1,e:'connections) during training, which forces the network to not rely on specific neurons.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'What is the main advantage of using an ensemble method such as Random Forest over a single\ndecision tree?',
+  o:['Avoid overfitting','Higher accuracy and lower variance','Easier interpretation of the model','More complex decision rules'],
+  a:1,e:'variance and improve the generalization of the model.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'How does PCA handle multicollinearity among the original features?',
+  o:['It removes the highly correlated features from the dataset.','It combines the correlated features into a single principal component.','It amplifies the correlation between the features.','It does not address multicollinearity.'],
+  a:1,e:'features shall tend to be grouped in the same component. In fact, multicollinearity or, more in general, high correlation among features, helps in achieving PCs purpose of reducing dimensionality while not losing too much information.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'In what follows, what best describes the purpose of cross-validation in machine learning?',
+  o:['To train the model on multiple subsets of the train data and evaluate its performance on left out','To divide the data into training and test sets to assess the model\'s generalization performance.','To optimize the hyperparameters of the model using a grid search approach.','To visualize the relationships between multiple variables in the dataset.'],
+  a:0,e:'performance on left out data subsets. performance of a model. It involves dividing the training data into multiple subsets, training the model on some subsets, evaluating its performance on the remaining subsets. For example, in k-fold cross validation the training dataset is split into k subsets, The model is estimated on each subset except one, which is held out. Model performance is then evalua'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'Consider the following program snippet:\n1-input_data = tf.keras.layers.Input(shape=(input_dim,))\n2-encoded = tf.keras.layers.Dense(encoding_dim, activation=\'linear\')(input_data)\n3-decoded = tf.keras.layers.Dense(input_dim, activation=\'linear\')(encoded)\n4-autoencoder = tf.keras.models.Model(input_data, decoded)\n5-history = autoencoder.fit(train_data, train_data, epochs=50, batch_size=32, shuffle=True)\nThis shall not properly work if the following instruction is not included in the proper place:\nautoencoder.compile(optimizer=\'adam\', loss=\'mean_squared_error\')\nAfter which line of code the missing instruction should appear?\n(Note: line numbers are added for reference and are not part of the code and we suppose all required\nlibraries loaded and variables defined correctly).\nAnswers:',
+  o:['1','2','3','4'],
+  a:3,e:'The model must be compiled before it can be trained. compile() configures the optimizer and loss function. It must go after the model is constructed (line 4: autoencoder = Model(...)) and before fit() is called (line 5). So it belongs after line 4.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'Consider the following program snippet:\nBTP = pd.read_excel(\'BTPs_and_SWAP_RATES.xlsx\', sheet_name=\'BTPs\')\n1-BTP.set_index(BTP.columns[0], inplace=True)\n2-BTP = BTP[selected_columns]\n3-BTP.index = pd.to_datetime(BTP.index)\n4-selected_columns = BTP.columns[::4]\n5-BTP.index = BTP.index.strftime(\'%Y-%m-%d\')\nBTP.columns = [col[15:30] for col in BTP.columns]\nThe order of the numbered lines is not correct. Choose a correct order among what follows:\nAnswers:',
+  o:['1,3,5,4,2','2,4,1,3,5','1,5,2,3,4','4,5,1,2,3'],
+  a:0,e:'be before 2. This is satisfied by A), D), E) and F). Hence, A) is the only answer which satisfies both requirements. The following two questions are reserved for those students which did not do the take-home.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'Consider the following Python code to split a dataset for cross-validation. Which part is missing?\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.model_selection import KFold\nkf = KFold(n_splits=5)\nfor train_index, test_index in kf.split(X):\nX_train, X_test = X[train_index], X[test_index]\ny_train, y_test = y[train_index], y[test_index]\n# Missing part here',
+  o:['model.fit(X_train, y_train)','scaler = StandardScaler()','train_test_split(X, y)','model.evaluate(X_test, y_test)'],
+  a:0,e:'to train and evaluate the model on different splits of the data.'}
+,{m:'🎯 Mock Exam',mock:true,
+  q:'Consider the following Python code for preprocessing numerical data. What is the correct order of\noperations?\nimport pandas as pd\ndf = pd.read_csv(\'data.csv\')\n# Operations needed:\n1. Normalize the data using min-max scaling\n2. Handle missing values\n3. Split the data into training and test sets\n4. Standardize the features using z-score normalization',
+  o:['2, 3, 1, 4','3, 2, 4, 1','2, 3, 4, 1','2, 4, 1, 3'],
+  a:2,e:'features using z-score normalization, and optionally apply min-max scaling if needed for certain models.'}
+,{m:'Module 1',
+   q:'When is Dropout active?',
+   o:['During training and inference','During inference only','During training only','Dropout is a concept — never actually applied'],
+   a:2,e:'Dropout randomly zeros out activations during training to prevent co-adaptation. At inference/prediction time it is completely off — all neurons contribute fully.'}
+,{m:'Module 1',
+   q:'The correct order in Keras is:',
+   o:['fit() → compile() → evaluate()','compile() → fit() → evaluate()','fit() → evaluate() → compile()','evaluate() → compile() → fit()'],
+   a:1,e:'compile() sets the optimiser, loss function, and metrics. Without it, the model does not know what to minimise. It must come before fit().'}
+,{m:'Module 1',
+   q:'What is the clearest sign of overfitting?',
+   o:['High training loss and high test loss','Low training loss and low test loss','Very low training loss but much higher test loss','The model trains very slowly'],
+   a:2,e:'Overfitting: the model memorised training data (very low train loss) but fails on new data (high test loss). The gap between train and test loss is the key diagnostic.'}
+,{m:'Module 1',
+   q:'What does L1 regularisation (Lasso) do that L2 (Ridge) cannot?',
+   o:['Shrinks all weights toward zero','Drives some weights to exactly zero — sparse models','Increases the learning rate','Prevents gradient explosion'],
+   a:1,e:'L1 penalises the sum of absolute values, geometrically pushing some weights to exactly zero. L2 (sum of squares) shrinks weights smoothly but never reaches zero. L1 is useful for automatic feature selection.'}
+,{m:'Module 1',
+   q:'What is the bias-variance tradeoff?',
+   o:['Bias measures how fast the model trains; variance measures accuracy','High bias = overfitting; high variance = underfitting','Bias = error from wrong assumptions (underfitting); variance = sensitivity to data (overfitting)','Variance is only relevant for classification tasks'],
+   a:2,e:'High bias = model is too simple, systematically wrong. High variance = model is too complex, sensitive to noise. Regularisation reduces variance at the cost of some bias.'}
+,{m:'Module 1',
+   q:'In Keras, what data does validation_split draw from?',
+   o:['The held-out test set','The training set only','A separate external dataset','Half training, half test'],
+   a:1,e:'validation_split carves off a fraction of the training data for monitoring. It never touches the separately held-out test set.'}
+,{m:'Module 1',
+   q:'What is cross-entropy loss, and for which task types is it used?',
+   o:['MSE variant used for regression','A loss that penalises wrong predicted probabilities — used for classification','Only used with the sigmoid activation','A distance metric between weight vectors'],
+   a:1,e:'Cross-entropy measures how well predicted probabilities match true labels. Binary cross-entropy is used with sigmoid (two classes). Categorical cross-entropy with softmax (multi-class). Both penalise confident wrong predictions harshly.'}
+,{m:'Module 1',
+   q:'What happens if the learning rate is set too high?',
+   o:['Training is very slow','Training diverges — loss oscillates or explodes','The model always underfits','Dropout stops working'],
+   a:1,e:'Too high a learning rate means weight updates overshoot the minimum. The loss bounces around or explodes rather than converging. Too low a learning rate makes training unnecessarily slow.'}
+,{m:'Module 2',
+   q:'Which algorithm absolutely requires StandardScaler?',
+   o:['Decision Tree','Random Forest','K-Nearest Neighbours','Gradient Boosting'],
+   a:2,e:'KNN measures Euclidean distance — without scaling, features in large units dominate those in small units. Trees split on thresholds and are completely scale-invariant.'}
+,{m:'Module 2',
+   q:'When α = 0 in Ridge Regression, the result is:',
+   o:['All weights forced to zero','Equivalent to OLS','Maximum regularisation','Training fails'],
+   a:1,e:'When α=0 the penalty vanishes — only sum of squared residuals remains, which is identical to OLS. As α increases, weights are shrunk more aggressively.'}
+,{m:'Module 2',
+   q:'The first PC of S&P 500 stock returns represents:',
+   o:['The largest stock by market cap','The market factor — unavoidable systematic risk','The most volatile stock','The risk-free rate'],
+   a:1,e:'PC1 has all positive loadings. It captures the common market-wide movement all stocks share. This is systematic risk — it cannot be diversified away no matter how many stocks you hold.'}
+,{m:'Module 2',
+   q:'For fraud detection, which metric should be prioritised over accuracy?',
+   o:['R²','Accuracy','Precision and Recall (F1)','AUC of the training set'],
+   a:2,e:'Missing a genuine fraud (false negative) is typically far more costly than a false alarm. Accuracy is useless when 99% of transactions are legitimate — a model predicting "normal" always scores ~99%.'}
+,{m:'Module 2',
+   q:'What is the only difference between Logistic Regression (logit) and Probit?',
+   o:['They use different loss functions','Logit uses sigmoid; probit uses the normal CDF','Logit is for regression; probit for classification','Probit requires scaled inputs; logit does not'],
+   a:1,e:'Both solve binary classification. Logit: P(y=1) = sigmoid(βX). Probit: P(y=1) = Φ(βX) where Φ is the standard normal CDF. In practice they give almost identical results.'}
+,{m:'Module 2',
+   q:'PCA on weekly swap rate changes consistently shows:',
+   o:['10 orthogonal factors','3 factors — Level, Slope, Curvature — explaining ~99% of variation','Swap rates are random walks','No meaningful structure'],
+   a:1,e:'PC1 (~85%) = Level (parallel shift). PC2 (~10%) = Slope (short vs long). PC3 (~3%) = Curvature (butterfly). Three factors capture ~99% of yield curve variation. (Litterman & Scheinkman 1991)'}
+,{m:'Module 2',
+   q:'The main purpose of k-fold cross-validation is:',
+   o:['To choose the number of neurons','To get a robust performance estimate and select hyperparameters without using the test set','To speed up training','To prevent data leakage between train and test'],
+   a:1,e:'k-fold CV splits training data into k folds and evaluates k times. This gives a reliable performance estimate and is used inside GridSearchCV to select hyperparameters.'}
+,{m:'Module 2',
+   q:'What does max_depth control in a Decision Tree?',
+   o:['The number of features considered at each split','The maximum depth of the tree — limiting it prevents memorising training data','The number of trees in the ensemble','The learning rate of the tree'],
+   a:1,e:'A very deep tree can create one leaf per training point — perfect training accuracy but zero generalisation. Limiting max_depth is the primary way to regularise a decision tree.'}
+,{m:'Module 2',
+   q:'What does Gini impurity measure in a decision tree?',
+   o:['The accuracy of the tree on training data','How mixed the class labels are in a node — 0 = perfectly pure','The depth of the tree','The importance of each feature'],
+   a:1,e:'Gini = 1 − Σpᵢ². A pure node (all same class) has Gini = 0. The tree splits to minimise weighted Gini — finding the most informative split at each node.'}
+,{m:'Module 3',
+   q:'The correct output activation + loss for regression is:',
+   o:['Sigmoid + Binary Cross-Entropy','Softmax + Categorical Cross-Entropy','Linear activation + MSE','ReLU + MAE'],
+   a:2,e:'Regression predicts a continuous number that can take any value, so a linear (identity) output is correct. MSE measures the average squared difference between prediction and truth.'}
+,{m:'Module 3',
+   q:'The correct output activation for multi-class classification is:',
+   o:['Sigmoid','ReLU','Linear','Softmax'],
+   a:3,e:'Softmax converts raw scores into a probability distribution summing to 1, one probability per class. Sigmoid is for binary only (one output). Softmax is for multi-class (one output per class).'}
+,{m:'Module 3',
+   q:'The Universal Approximation Theorem states:',
+   o:['Any NN trained long enough will learn the correct function','A large enough MLP can approximate any continuous function','NNs always outperform linear models given enough data','Deep NNs require less data than shallow ones'],
+   a:1,e:'It guarantees that a sufficiently large MLP is expressive enough to approximate any continuous function. It is a theoretical result about capacity — not a guarantee that training will succeed.'}
+,{m:'Module 3',
+   q:'A NN with linear activation and MSE loss converges to the same solution as:',
+   o:['Ridge Regression','Random Forest','OLS (Ordinary Least Squares)','Logistic Regression'],
+   a:2,e:'OLS minimises sum of squared residuals = MSE × n. A linear NN minimises the same thing. Gradient descent converges to the identical OLS solution. (A06b exercise)'}
+,{m:'Module 3',
+   q:'Adam differs from SGD because it:',
+   o:['Uses a fixed learning rate for all parameters','Adapts the learning rate per parameter using first and second moment estimates of gradients','Requires no hyperparameter choices','Only works for classification'],
+   a:1,e:'Adam maintains a running mean (1st moment) and variance (2nd moment) of gradients for each weight, scaling each update individually. This typically converges faster and is more robust than SGD.'}
+,{m:'Module 3',
+   q:'What is early stopping?',
+   o:['Stopping training after a fixed number of epochs','Stopping training when validation loss stops improving, to prevent overfitting','Stopping when training loss reaches zero','Reducing the learning rate during training'],
+   a:1,e:'Early stopping monitors validation loss and halts training when it has not improved for a set number of epochs ("patience"). This prevents the model from overfitting by training past the optimal point.'}
+,{m:'Module 3',
+   q:'Why is ReLU preferred over sigmoid in hidden layers?',
+   o:['ReLU produces probabilities between 0 and 1','Sigmoid causes vanishing gradients in deep networks; ReLU avoids this and is computationally faster','ReLU is always more accurate','Sigmoid cannot be used in hidden layers at all'],
+   a:1,e:'Sigmoid saturates for large inputs, causing near-zero gradients — the vanishing gradient problem. ReLU (max(0,x)) has a constant gradient of 1 for positive inputs, avoiding this.'}
+,{m:'Module 3',
+   q:'When do you need the Keras Functional API instead of Sequential?',
+   o:['When training on large datasets','When using dropout','When you need multiple inputs/outputs, shared layers, or to extract intermediate outputs (e.g. for autoencoders)','When training for more than 10 epochs'],
+   a:2,e:'Sequential is a simple stack. Functional API is needed for complex topologies — autoencoders require it because you must extract the encoder output separately from the decoder output.'}
+,{m:'Module 3',
+   q:'What is one epoch in neural network training?',
+   o:['Processing one training sample','Processing one mini-batch','One complete pass through the entire training dataset','One update of the weights'],
+   a:2,e:'One epoch = the model has seen every training sample once. Training typically runs for many epochs. Each epoch consists of multiple batch updates.'}
+,{m:'Module 3',
+   q:'What is the main difference between how training works in Keras vs PyTorch?',
+   o:['Keras uses PyTorch under the hood — they are identical','Keras training loop is automatic (compile → fit); PyTorch requires a manual training loop with loss.backward() and optimizer.step()','PyTorch uses compile() and fit() just like Keras','Keras is only for research; PyTorch is only for production'],
+   a:1,e:'Keras abstracts the training loop — you call compile() to set optimizer/loss, then fit() to train. PyTorch gives you full control: you write the loop, call loss.backward() to compute gradients, and optimizer.step() to update weights. Both use automatic differentiation.'}
+,{m:'Module 3',
+   q:'Why is PyTorch dominant in academic research while Keras is popular for prototyping?',
+   o:['PyTorch is faster at inference','PyTorch gives full control via a manual training loop and dynamic computation graphs — easier to debug and extend; Keras is easier to get started with','PyTorch requires no GPU','Keras cannot implement deep models'],
+   a:1,e:'PyTorch\'s manual loop and dynamic graph make it easy to customise every step — important for researchers implementing novel architectures. Keras\'s automated workflow is faster for standard models, making it great for learning and prototyping.'}
+,{m:'Module 4',
+   q:'What is the purpose of the bottleneck in an autoencoder?',
+   o:['To speed up training','To add dropout regularisation','To force a compact compressed representation of the input','To increase model capacity'],
+   a:2,e:'The bottleneck is narrow by design. The model cannot copy the input through — it must compress, keeping only the most essential features.'}
+,{m:'Module 4',
+   q:'A linear autoencoder differs from PCA because:',
+   o:['They are completely identical','Linear AE does not require orthogonality of encoder/decoder weights','PCA handles non-linear data better','AE uses a different loss function'],
+   a:1,e:'PCA components are forced orthogonal and ordered by explained variance. A linear AE finds a similar subspace without enforcing orthogonality. With OrthogonalRegularizer it gets very close to PCA but is not identical.'}
+,{m:'Module 4',
+   q:'For fraud detection, the autoencoder is trained on:',
+   o:['Both fraud and normal transactions equally','Only fraudulent transactions','Only normal (non-fraudulent) transactions','A 50/50 balanced sample'],
+   a:2,e:'Training on normal-only means the model learns what normal looks like. Fraud is structurally different from training data → poorly reconstructed → high reconstruction error = anomaly signal.'}
+,{m:'Module 4',
+   q:'In the Suimon et al. (2020) bond model, reconstruction error represents:',
+   o:['Model training error','Bond credit risk','Mispricing — a rich/cheap trading signal','Interest rate duration'],
+   a:2,e:'The AE reconstructs fair value from 3 latent factors. Gap = actual − fair value. Positive: bond is rich → sell. Negative: bond is cheap → buy.'}
+,{m:'Module 4',
+   q:'Why is accuracy a bad metric for an autoencoder-based fraud detector?',
+   o:['Autoencoders cannot produce accuracy scores','Fraud is rare — predicting "all normal" gets ~99% accuracy but catches zero fraud','Reconstruction error is always zero','Autoencoders are unsupervised so accuracy cannot be computed'],
+   a:1,e:'Class imbalance makes accuracy meaningless. 99%+ of transactions are legitimate, so always predicting "normal" scores very high. Precision, Recall, and F1 are the correct metrics.'}
+,{m:'Module 4',
+   q:'What is a denoising autoencoder, and what is its advantage?',
+   o:['An AE trained on noiseless data for speed','An AE that intentionally receives corrupted input but must output clean data — learns more robust features','An AE with a larger bottleneck than standard','An AE trained without reconstruction loss'],
+   a:1,e:'A denoising AE receives corrupted (noisy) input and is trained to output the clean version. This forces it to learn robust underlying structure, not just copy the input. More useful than a standard AE on real noisy data.'}
+,{m:'Module 4',
+   q:'Why does the bond-hedging autoencoder use exactly 3 neurons in the bottleneck?',
+   o:['Three is a common default','To match the number of swap rate maturities','To mirror the 3 PCA factors (Level, Slope, Curvature) that explain ~99% of yield curve variation','To reduce training time'],
+   a:2,e:'PCA on yield curves consistently finds 3 dominant factors accounting for ~99% of variation. The 3-neuron bottleneck forces the AE to summarise all 15 swap rates into those same 3 latent dimensions.'}
+,{m:'Module 5',
+   q:'What problem does an LSTM solve that a vanilla RNN cannot?',
+   o:['Overfitting on short sequences','Vanishing gradients — inability to learn long-range dependencies','Slow training','Lack of interpretability'],
+   a:1,e:'In vanilla RNNs, gradients shrink exponentially through many time steps (vanishing gradient). The LSTM cell state provides a direct highway for gradient flow, enabling learning over hundreds of steps.'}
+,{m:'Module 5',
+   q:'Compared to an equivalent RNN, an LSTM has approximately:',
+   o:['The same number of parameters','Twice as many','Four times as many','Ten times as many'],
+   a:2,e:'An LSTM has four weight matrices — forget, input, output gates, and candidate cell update. A vanilla RNN has one. ~4× as many parameters.'}
+,{m:'Module 5',
+   q:'The key architectural advantage of the Transformer over the LSTM is:',
+   o:['Less memory usage','All positions processed in parallel via self-attention','Requires no training data','Handles missing values automatically'],
+   a:1,e:'RNNs must process tokens sequentially — position n waits for n−1. Transformers compute attention over all positions simultaneously — fully parallelisable, enabling much larger models.'}
+,{m:'Module 5',
+   q:'How many trainable parameters do positional encodings have?',
+   o:['Many — proportional to vocabulary size','Moderate — one vector per position','Zero — generated by a fixed formula','Depends on the number of attention heads'],
+   a:2,e:'Positional encodings use fixed sinusoidal functions of position and dimension. Computed and added to embeddings, but not learned. Zero trainable parameters.'}
+,{m:'Module 5',
+   q:'Layer normalisation in a Transformer is applied:',
+   o:['Only at the very end of the network','Before the attention and feedforward steps in each block','After the final output layer only','Only when the sequence is very long'],
+   a:1,e:'Each Transformer block applies LayerNorm twice: once before self-attention and once before the feedforward sublayer. This stabilises activations throughout the deep stack.'}
+,{m:'Module 5',
+   q:'An embedding in a language model is:',
+   o:['A compression technique for the model itself','A dense learned vector representing a token — similar tokens end up near each other','The output layer of a Transformer','A type of regularisation'],
+   a:1,e:'Token IDs are mapped to continuous vectors learned during training. Similar tokens cluster geometrically. Embeddings are the model\'s learned vocabulary of meaning.'}
+,{m:'Module 5',
+   q:'In the attention formula Attention = softmax(QKᵀ/√d)V, what is the role of K?',
+   o:['K is the query — what the current token is looking for','K is the value — the content to aggregate','K is the key — what each token offers for matching against queries','K is the output after softmax'],
+   a:2,e:'Q (Query) = what this token seeks. K (Key) = what each token offers for comparison. V (Value) = the actual content to aggregate. The dot product QKᵀ computes relevance scores between each query and every key.'}
+,{m:'Module 5',
+   q:'What is the forget gate in an LSTM doing?',
+   o:['Deciding what new information to write into the cell state','Controlling the output hidden state','Deciding what information to discard from the long-term cell state','Setting the initial hidden state to zero'],
+   a:2,e:'The forget gate computes sigmoid([hₜ₋₁, xₜ]) producing values between 0 (forget) and 1 (keep) for each cell dimension. It controls what the LSTM remembers from previous time steps.'}
+,{m:'Module 6',
+   q:'In LoRA, which weights are actually trained?',
+   o:['All weights in the model','Only the final output layer','The original weight matrix W₀','Only the small low-rank matrices B and A — W₀ is frozen'],
+   a:3,e:'LoRA freezes W₀ entirely. Only B (d×r) and A (r×k) are trained, where r << d,k. The effective weight is W₀ + B·A, but gradients only flow through B and A. Far fewer trainable parameters.'}
+,{m:'Module 6',
+   q:'RAG retrieves documents:',
+   o:['During pre-training','During fine-tuning','At inference time when generating a response','During tokenisation'],
+   a:2,e:'RAG is a pure inference-time technique. The query is embedded, similar document chunks are retrieved from a vector database (e.g. FAISS), and prepended to the prompt. Model weights never change.'}
+,{m:'Module 6',
+   q:'Lower perplexity means:',
+   o:['The model is more confused','The model predicts text better — less surprised by real data','The model has fewer parameters','The model hallucinates less'],
+   a:1,e:'Perplexity = exp(average cross-entropy loss). Lower = the model consistently assigns high probability to actual next tokens = it models the text better.'}
+,{m:'Module 6',
+   q:'LLMs hallucinate because:',
+   o:['Not enough training data','They predict statistically likely tokens, not verified facts','The attention mechanism is too shallow','RAG is not applied'],
+   a:1,e:'LLMs generate token by token from statistical patterns. They have no fact-checking layer. If a plausible-sounding but wrong completion is common in training data, the model generates it confidently.'}
+,{m:'Module 6',
+   q:'What does FAISS do in a RAG pipeline?',
+   o:['Tokenises the input text','Fine-tunes the language model','Performs fast nearest-neighbour search to find similar document chunks to a query','Compresses the model weights'],
+   a:2,e:'FAISS (Facebook AI Similarity Search) finds document chunks whose embedding vectors are most similar to the query embedding — efficiently, even across millions of documents.'}
+,{m:'Module 6',
+   q:'What is the main advantage of RAG over fine-tuning for adding new information to an LLM?',
+   o:['RAG makes the model smaller','RAG does not require changing model weights — new documents can be added to the vector database without retraining','Fine-tuning is slower than RAG at inference time','RAG produces better prose style'],
+   a:1,e:'Fine-tuning bakes information into weights — expensive and static. RAG retrieves from an external database at inference time. New documents are added by updating the database, not retraining the model. Perfect for frequently updated knowledge.'}
+,{m:'Module 6',
+   q:'In LoRA, rank r controls:',
+   o:['The number of attention heads','How many layers are frozen','The size of the low-rank matrices B and A — lower r = fewer parameters but less expressive','The learning rate schedule'],
+   a:2,e:'B is d×r and A is r×k. A lower rank r means fewer trainable parameters and less capacity to change the model — faster but potentially less effective. Higher r = more expressive fine-tuning, more parameters.'}
+,{m:'Module 7',
+   q:'"Statistical significance ≠ practical relevance" means:',
+   o:['Statistical tests are unreliable','With large samples, even negligible effects produce huge t-statistics','Regression is not useful','Only non-parametric tests are valid'],
+   a:1,e:'T-statistics grow with sample size. With n=10,000, a variable explaining 0.1% of variance (negligible) can have t-stat > 3. "Highly significant" ≠ "matters". Check semi-partial R², not just p-value.'}
+,{m:'Module 7',
+   q:'Two I(1) series are cointegrated when:',
+   o:['Both are stationary','Their linear combination is stationary (I(0))','They are perfectly correlated','They both have zero mean'],
+   a:1,e:'Cointegration: two individually trending series share a stable long-run relationship. Their spread fluctuates around a constant rather than drifting. Mathematical basis for pairs trading.'}
+,{m:'Module 7',
+   q:'Beta (β) in the regression r_i = α + β × r_market + ε measures:',
+   o:['Average return of the stock','Sensitivity to market movements — systematic risk exposure','Idiosyncratic risk of the stock','Sharpe ratio'],
+   a:1,e:'Beta = 1.2 means: when the market rises 1%, this stock tends to rise 1.2%. It measures exposure to systematic (undiversifiable) market risk.'}
+,{m:'Module 7',
+   q:'What happens to portfolio variance as you add more stocks from the same market?',
+   o:['Keeps falling to zero','Falls then stabilises at a non-zero level — systematic risk cannot be diversified','Stays constant','Initially increases then decreases'],
+   a:1,e:'Adding stocks removes idiosyncratic risk. But all stocks share the market factor (PC1) which remains no matter how many stocks you hold. Confirmed by comparing real vs random Gaussian stock data.'}
+,{m:'Module 7',
+   q:'Mahalanobis distance differs from Euclidean because it:',
+   o:['Is always smaller','Accounts for correlations between features and the scale of each variable','Only works in 2 dimensions','Uses squared distances always'],
+   a:1,e:'Mahalanobis: d = √((x−y)ᵀ Σ⁻¹ (x−y)). The inverse covariance matrix accounts for correlations and scale. Equivalent to Euclidean after standardising and decorrelating all variables.'}
+,{m:'Module 7',
+   q:'Under CAPM, alpha (α) for any stock should be:',
+   o:['Equal to beta','Greater than 1 for high-beta stocks','Close to zero — all expected return is compensation for beta risk','Negative in efficient markets'],
+   a:2,e:'CAPM: all expected excess return = beta × market risk premium. Any genuine alpha above this would attract investors until it disappears. Alpha should be zero in equilibrium.'}
+,{m:'Module 7',
+   q:'Fisher\'s Discriminant Analysis (LDA) finds:',
+   o:['The direction of maximum variance in the data','The linear combination of features that best separates the classes','The cluster centroids in the data','The principal components of the feature matrix'],
+   a:1,e:'LDA maximises the ratio of between-class variance to within-class variance. Assumes Gaussian classes with equal covariance matrices. Altman used LDA for the bankruptcy Z-score.'}
+,{m:'Module 7',
+   q:'Average linkage in hierarchical clustering measures the distance between two clusters as:',
+   o:['The minimum distance between any two points','The maximum distance between any two points','The average of all pairwise distances between points in the two clusters','The distance between the two cluster centroids'],
+   a:2,e:'Average linkage: d(Cᵢ, Cⱼ) = (1/|Cᵢ||Cⱼ|) × Σ d(x,y) for all x∈Cᵢ, y∈Cⱼ. Averages all pairwise distances. More robust than single or complete linkage.'}
+,{m:'Module 7',
+   q:'Semi-partial R² is used instead of a p-value because:',
+   o:['P-values are always wrong','Semi-partial R² measures the unique practical contribution of each predictor — not just whether the effect is non-zero','P-values cannot be computed for regression','Semi-partial R² is easier to calculate'],
+   a:1,e:'With large samples, even negligible effects have small p-values. Semi-partial R² tells you how much variance a predictor explains uniquely — its actual practical importance. Both should be reported together.'}
+,{m:'Module 8',
+   q:'What does the Asset Swap Spread (ASW) measure?',
+   o:['Bond credit default probability','Bond yield minus the same-maturity swap rate','Bid-ask spread of the bond','Bond duration'],
+   a:1,e:'ASW = bond yield − swap rate (same maturity). Positive ASW = bond pays more than benchmark → positive carry for a hedged investor who borrows at floating (Euribor) and holds fixed-coupon bonds.'}
+,{m:'Module 8',
+   q:'Why does the bond-hedging autoencoder use a 3-neuron bottleneck?',
+   o:['To match the number of swap rate maturities','To enforce 3 common factors, consistent with PCA showing 3 yield curve factors','To reduce training time','Arbitrary choice'],
+   a:1,e:'PCA on swap rates consistently finds 3 dominant factors (Level, Slope, Curvature). The 3-neuron bottleneck forces the model to summarise all 15 swap rates into 3 latent dimensions — directly motivated by this empirical result.'}
+,{m:'Module 8',
+   q:'What is DV01, and why is it important for hedging?',
+   o:['A credit rating metric','Dollar Value of a 1bp yield move — measures interest rate sensitivity of a bond','The daily volatility of a bond','The 1-day Value at Risk'],
+   a:1,e:'DV01 = change in bond price when yield moves 0.01%. It measures sensitivity to parallel yield shifts. Matching DV01 between a bond and its hedge instrument ensures the portfolio is protected against Level moves.'}
+,{m:'Module 8',
+   q:'A positive ASW means the bond is:',
+   o:['Overpriced relative to the swap curve — sell it','Fairly priced — no signal','Underpriced relative to the swap curve — buy it for positive carry','Below investment grade'],
+   a:2,e:'A positive ASW means the bond yields more than the swap rate at the same maturity. For a hedged investor (receiving fixed coupon, paying floating), this generates positive carry — a buying signal.'}
+,{m:'Module 8',
+   q:'Why is a rolling window used when training the AE-based bond model?',
+   o:['To increase the amount of training data','Because financial regimes change — recent data is more relevant than distant past data','To satisfy GDPR requirements','To reduce computation time'],
+   a:1,e:'Financial relationships evolve with monetary policy, market structure, and economic regimes. Training on only the most recent window keeps the model\'s factor structure relevant and avoids stale patterns.'}
+,{m:'Module 8',
+   q:'In yield curve PCA hedging, which factor has the largest exposure for most bonds?',
+   o:['PC3 — Curvature','PC2 — Slope','PC1 — Level, which explains ~85% of yield curve variation','None — PCA cannot be used for hedging'],
+   a:2,e:'PC1 (Level) explains ~85% of all yield curve movements. Almost all bonds have large PC1 exposure. Hedging PC1 first — often with bond futures — removes most interest rate risk.'}
+,{m:'Module 9',
+   q:'The statistical arbitrage P&L formula is:',
+   o:['P&L = sign(eₜ₋₁) × (eₜ − eₜ₋₁)','P&L = −sign(eₜ₋₁) × (eₜ − eₜ₋₁)','P&L = eₜ × eₜ₋₁','P&L = |eₜ − eₜ₋₁|'],
+   a:1,e:'If the error was positive yesterday (expensive), bet it shrinks (short the error). The negative sign means you profit when the error reverses direction — mean reversion. Random walk errors give zero expected P&L.'}
+,{m:'Module 9',
+   q:'The stat arb strategy earns positive expected P&L when errors are:',
+   o:['Normally distributed','Positively autocorrelated (trending)','Negatively autocorrelated (mean-reverting)','Uncorrelated (random walk)'],
+   a:2,e:'The strategy bets on error reversal. Negative autocorrelation (a large error today predicts a smaller one tomorrow) = mean reversion = strategy profits. Random walk = zero autocorrelation = zero expected P&L.'}
+,{m:'Module 9',
+   q:'For ECM stability, mean reversion requires:',
+   o:['-2 < (α₁ + γα₂) < 0','-2 < (α₁ − γα₂) < 0','α₁ = α₂ = 0','α₁ > 0 and α₂ < 0'],
+   a:1,e:'The condition -2 < (α₁ − γα₂) < 0 ensures error correction pulls the spread back to equilibrium. If =0: random walk. If >0: explosive. Must be strictly negative for mean reversion.'}
+,{m:'Module 9',
+   q:'Why is statistical arbitrage not risk-free like classical arbitrage?',
+   o:['It requires too much capital','It is probabilistic — mean reversion may not occur and losses are possible','It only works for government bonds','It requires more data than is available'],
+   a:1,e:'Classical arbitrage exploits identical securities at different prices — truly riskless. Statistical arbitrage bets that a historically observed relationship will continue. The spread can widen further before reverting, causing losses.'}
+,{m:'Module 9',
+   q:'Why use returns rather than price levels for equity pairs trading?',
+   o:['Returns are easier to obtain','Return-based spreads are more stationary — better for predictive models','Prices cannot be used in neural networks','Returns have lower volatility'],
+   a:1,e:'Two correlated stock prices are both I(1) — non-stationary/trending. Price-level regression residuals are often non-stationary too. Return-based spreads tend to be stationary, which is what any predictive model needs.'}
+,{m:'Module 9',
+   q:'The Engle-Granger two-step test for cointegration consists of:',
+   o:['Running two separate OLS regressions and comparing R²','Step 1: OLS regression of one series on the other. Step 2: ADF test on the residuals to check stationarity','Running the ADF test on both series individually','Estimating a VAR model and testing Granger causality'],
+   a:1,e:'Step 1: regress series A on series B (OLS). Step 2: test whether the residuals are stationary (ADF test). If residuals are I(0), the series are cointegrated — they share a stable long-run relationship.'}
+,{m:'Module 9',
+   q:'What is the core idea of pairs trading?',
+   o:['Buy the stock that went up most recently','Find two cointegrated assets; buy the underpriced one and short the overpriced one when the spread widens, betting on reversion','Buy both assets in a pair to diversify','Short both assets when market falls'],
+   a:1,e:'Pairs trading exploits cointegration. When the spread between two cointegrated assets widens, one is relatively cheap and one relatively expensive. The trade bets on convergence back to the long-run equilibrium.'}
+,{m:'Module 10',
+   q:'Deep Hedging (Bühler et al. 2019) replaces Black-Scholes by:',
+   o:['Computing implied volatility more precisely','Training an RL/DL agent on simulated trajectories without closed-form assumptions','Pricing options analytically with jumps','Using PCA to decompose volatility'],
+   a:1,e:'Black-Scholes requires no transaction costs, continuous trading, constant volatility. Deep Hedging learns from experience and naturally handles frictions, discrete rebalancing, and stochastic volatility — no formula needed.'}
+,{m:'Module 10',
+   q:'Krauss et al. (2017) found that ML methods outperformed classical pairs trading because:',
+   o:['ML models used more data','ML detected non-linear mean reversion signals invisible to linear ECM models','ML had lower transaction costs','Classical methods required stationarity'],
+   a:1,e:'Linear ECM models can only detect linear mean reversion. ML methods (LSTM, random forest, deep NN) detected subtle non-linear patterns in return-based spreads, producing better out-of-sample P&L.'}
+,{m:'Module 10',
+   q:'What is the "useless variance" warning?',
+   o:['A warning that ML models have too many parameters','Training on random noise still produces apparent in-sample patterns — only out-of-sample evaluation reveals real signal','Random forests are unreliable for financial data','Cross-validation is unnecessary for large datasets'],
+   a:1,e:'A model trained on pure noise overfits in-sample — useless variance, not signal. Only out-of-sample evaluation reveals whether the model learned anything real. This is why the test set must be held out strictly.'}
+,{m:'Module 10',
+   q:'Why does Deep Hedging handle transaction costs better than Black-Scholes?',
+   o:['Deep Hedging uses fewer trades by design','The RL agent is trained in a simulated market with transaction costs included — it learns to trade less aggressively','Black-Scholes ignores market impact','Deep Hedging uses market-making strategies'],
+   a:1,e:'Black-Scholes assumes costless continuous trading. Deep Hedging trains the agent with transaction costs built into the simulation — it learns a hedging policy that balances risk reduction against the cost of trading.'}
+,{m:'Module 10',
+   q:'Why do Krauss et al. (2017) use returns rather than price levels?',
+   o:['Returns are easier to obtain','Return-based spreads are more stationary — suitable for prediction models','Prices cannot be used in NNs','Returns have lower volatility'],
+   a:1,e:'Stock price levels are I(1) — non-stationary, trending. Return-based spreads tend to be stationary. ML models need stable statistical properties to find meaningful predictable patterns.'}
+,{m:'Key Papers',
+   q:'Which paper first applied factor analysis to stock returns?',
+   o:['Litterman & Scheinkman (1991)','King (1966)','Altman (1968)','Gatev et al. (2006)'],
+   a:1,e:'King (1966) was the first academic paper to use factor analysis on stock returns, identifying a common market factor plus industry factors — the beginning of the equity factor model tradition.'}
+,{m:'Key Papers',
+   q:'The Altman Z-score (1968) uses which technique?',
+   o:['K-Nearest Neighbours','PCA','Discriminant Analysis (LDA)','Ridge Regression'],
+   a:2,e:'Altman applied Fisher\'s Linear Discriminant Analysis to five financial ratios to predict bankruptcy. He cited Durand (1941) who first applied discriminant analysis to consumer credit scoring.'}
+,{m:'Key Papers',
+   q:'Grossman & Stiglitz (1980) showed that markets cannot be:',
+   o:['Risky','Fully informationally efficient','Profitable','Modelled with ML'],
+   a:1,e:'If all information were instantly priced in, there would be no return to gathering information — so nobody would gather it — so prices wouldn\'t be efficient. Statistical arbitrageurs enforce efficiency and earn a reward for doing so.'}
+,{m:'Key Papers',
+   q:'Litterman & Scheinkman (1991) showed that yield curve variation is explained by:',
+   o:['10 orthogonal factors','3 factors (Level, Slope, Curvature) explaining ~99% of variation','Only the overnight rate','Random shocks with no structure'],
+   a:1,e:'PC1 (~85%) = Level, PC2 (~10%) = Slope, PC3 (~3%) = Curvature. Together ~99%. This became the foundation for yield curve risk management and fixed income trading.'}
+,{m:'Key Papers',
+   q:'Gatev, Goetzmann & Rouwenhorst (2006) demonstrated:',
+   o:['Deep Hedging outperforms Black-Scholes','Pairs trading on US equities generated significant returns over 1962–2002','LDA is superior to logistic regression','PCA yields better forecasts than ARIMA'],
+   a:1,e:'Gatev et al. provided academic validation of pairs trading on US equities, showing the strategy earned significant positive returns using a simple distance-based pair selection and a 12-month formation window.'}
+,{m:'Key Papers',
+   q:'Suimon et al. (2020) applied a 3-factor autoencoder to:',
+   o:['S&P 500 stock pairs trading','Japanese Government Bond yield curve trading signals','Deep hedging of equity options','Credit scoring of corporate bonds'],
+   a:1,e:'Suimon et al. trained a 3-factor AE on the JGB yield curve. Reconstruction errors identified rich/cheap bonds and generated trading signals based on deviations from model fair value.'}
+,{m:'Key Papers',
+   q:'Krauss, Do & Huck (2017) compared ML to classical pairs trading. What was their conclusion?',
+   o:['Classical ECM consistently outperformed ML','ML methods (LSTM, deep NN, RF) outperformed classical pairs trading out-of-sample','Transaction costs made all methods unprofitable','Price levels work better than returns for ML'],
+   a:1,e:'ML methods detected non-linear mean reversion signals invisible to linear ECM models. LSTM, deep NN, and gradient boosting all improved out-of-sample P&L versus classical pairs trading.'}
+,{m:'Key Papers',
+   q:'Bühler, Gonon, Teichmann & Wood (2019) introduced Deep Hedging as:',
+   o:['A new option pricing formula replacing Black-Scholes analytically','An RL/DL approach to learn optimal hedging policies from simulated trajectories','A new cointegration-based pairs trading method','A PCA method for volatility surfaces'],
+   a:1,e:'Deep Hedging trains a neural network agent via RL on simulated market paths to learn an optimal hedging policy — no closed-form assumptions, naturally handling transaction costs and stochastic volatility.'}
+,{m:'Question Examples 2026', mock:true,
+  q:'You are building a Binary Text Predictor. The following code is provided. What line of code is missing between lines 4 and 5? 1) model = Model(input_layer, output_layer)  2) output_layer = Dense(1, activation=\'sigmoid\')(x)  3) input_layer = Input(shape=(max_features,))  4) x = Dense(64, activation=\'relu\')(input_layer)  5) model.compile(...)',
+  o:['1, 3, 5, 4, 2',
+     '3, 4, 2, 1, 5',
+     '3, 2, 4, 1, 5',
+     '1, 2, 3, 4, 5',
+     '3, 4, 1, 2, 5',
+     '2, 3, 4, 1, 5'],
+  a:1,
+  e:'The correct Functional API order is: Input layer (3) → first Dense/relu (4) → output Dense/sigmoid (2) → Model() (1) → compile (5). So the sequence is 3,4,2,1,5.'}
+
+// ── May 14, 2024 ──────────────────────────────────────────────────────
+,{m:'May 14, 2024',mock:true,
+  q:'What is the purpose of the compile() function in Keras?',
+  o:['To define the architecture of the neural network','To train the neural network','To evaluate the performance of the neural network by defining a test sample','To configure the learning process before training by specifying the optimizer, loss function, etc.'],
+  a:3,e:'before training. It specifies the optimizer, loss function, and metrics to be used during training.'}
+,{m:'May 14, 2024',mock:true,
+  q:'What is the purpose of the fit() function in Keras?',
+  o:['To define the architecture of the neural network','To train the neural network','To evaluate the performance of the neural network by defining a test sample','To configure the learning process before training by specifying the optimizer, loss function, etc.'],
+  a:1,e:'labels, and other parameters like batch size and number of epochs to train the model.'}
+,{m:'May 14, 2024',mock:true,
+  q:'What is the primary purpose of an autoencoder?',
+  o:['Dimensionality reduction','Image classification','Text generation','Reinforcement learning'],
+  a:0,e:'representation of the input data.'}
+,{m:'May 14, 2024',mock:true,
+  q:'After obtaining the eigenvectors of the covariance matrix of a sample containing n observations on k\nvariables, how is the principal component corresponding to the j-th eigenvector computed?',
+  o:['By taking the ratio of the j-th eigenvector  and its corresponding eigenvalue','By multiplying the j-th eigenvalue with the original data matrix','By normalizing the j-th eigenvector','By multiplying the j-th eigenvectors with the original data matrix'],
+  a:3,e:'multiplying the eigenvectors with the original data matrix, effectively transforming the data into the new coordinate system defined by the principal components.'}
+,{m:'May 14, 2024',mock:true,
+  q:'Which type of regularization technique penalizes large weights in the network by adding a term\nproportional to the square of the weights to the loss function?',
+  o:['L1 regularization','Dropout regularization','L2 regularization','ElasticNet regularization'],
+  a:2,e:'adding a term proportional to the square of the weights to the loss function, which encourages the network to learn smaller weight values, thus reducing overfitting.'}
+,{m:'May 14, 2024',mock:true,
+  q:'Random forests algorithms are prone to overfitting. Among the following suggestions which would you\nchoose to prevent a random forest to overfit compared to a single decision tree?',
+  o:['Overfitting is not a problem of random forests, hence, no need to take any action','By reducing the depth of each decision tree','By training each decision tree on a random subset of features and data samples','By increasing the number of decision trees in the ensemble'],
+  a:2,e:'features and data samples. This technique, known as feature bagging and bootstrap sampling, introduces diversity among the trees and reduces the correlation between them, leading to better generalization performance.'}
+,{m:'May 14, 2024',mock:true,
+  q:'What is the primary advantage of using a recurrent neural network (RNN) over feedforward neural\nnetworks for sequential data?',
+  o:['RNNs can capture temporal dependencies.','RNNs have fewer parameters, making them computationally efficient.','RNNs are more robust to overfitting.','RNNs require less training data to achieve good performance.'],
+  a:0,e:'capturing temporal dependencies, making them suitable for tasks such as time series prediction, natural language processing, and speech recognition.'}
+,{m:'May 14, 2024',mock:true,
+  q:'What is the purpose of the "return_sequences" parameter in an RNN layer in Keras?',
+  o:['It determines whether the RNN layer returns the final output or the full sequence of outputs.','It controls the learning rate of the RNN model.','It specifies the number of recurrent units in the RNN layer.','It determines the activation function used in the RNN layer.'],
+  a:0,e:'outputs. should return the full sequence of outputs for each time step (if set to True) or only the output corresponding to the last time step (if set to False). This parameter is essential for designing different architectures, such as sequence-to-sequence models or models that require access to intermediate hidden states.'}
+,{m:'May 14, 2024',mock:true,
+  q:'What is the difference between a ReLu and a Linear activation function?',
+  o:['The ReLu function does not contain trainable parameters.','The ReLu function is bounded below.','The ReLu function is bounded below and above.','The ReLu function has a sigmoid shape.'],
+  a:1,e:'ReLU = max(0, x), so it outputs 0 for all negative inputs — it is bounded below at 0. A linear activation f(x) = x has no such bound, outputting any real number. This is the key structural difference.'}
+,{m:'May 14, 2024',mock:true,
+  q:'Which of the following statements best characterizes a key difference between data science and\nstatistics?',
+  o:['Data science focuses on collecting and analyzing data, while statistics focuses on making','Statistics relies heavily on mathematical theory and probability distributions, while data science','Data science primarily deals with structured data, while statistics primarily deals with unstructured','Data science is a subset of statistics, focusing specifically on the analysis of large datasets.'],
+  a:1,e:'data science emphasizes programming and machine learning algorithms. approaches. Statistics traditionally focuses on mathematical theory, probability distributions, and hypothesis testing for making inferences from data. On the other hand, data science incorporates a broader set of skills, including programming, machine learning, and data visualization, to extract insights and patterns from data, '}
+,{m:'May 14, 2024',mock:true,
+  q:'Consider the following program snippet:\n1-model = Sequential()\n2-model.add(SimpleRNN(200, activation=\'linear\', input_shape=(n_steps_in, n_features)))\n3-model.add(SimpleRNN(200, activation=\'linear\', return_sequences=True))\n4-model.add(TimeDistributed(Dense(n_features)))\n5-model.compile(optimizer=\'adam\', loss=\'mse\')\n6-print(model.summary())\nThis shall not properly work if the following instruction is not included in the proper place:\nmodel.add(RepeatVector(n_steps_out))\nAfter which line of code the missing instruction should appear?\n(Note: line numbers are added for reference and are not part of the code and we suppose all required\nlibraries loaded and variables defined correctly).\nAnswers:',
+  o:['1','2','3','4'],
+  a:1,e:'The model must be compiled before fit() is called. compile() configures the optimizer and loss. It belongs after the model is defined (after add layers) but before fit(). Here that is after line 2 (after adding the SimpleRNN layer), so the answer is line 2.'}
+,{m:'May 14, 2024',mock:true,
+  q:'Consider this program snippet from an exercise we did during the course.\n1-input1 = Input(shape=(k1,))\n2-output1 = Dense(1, activation=\'linear\', kernel_constraint=UN(axis=0),  use_bias=False)(input1)\n3-input2 = Input(shape=(k2,))\n4-output2 = Dense(1, activation=\'linear\',kernel_constraint=UN(axis=0),use_bias=False)(input2)\n5-output=Dense(1,activation=\'linear\',kernel_constraint=UN(axis=0),use_bias=False)(output3)\n6-model = Model(inputs=[input1, input2], outputs=output)\nChoose the line after which you should add the instruction:\noutput3 = concatenate([output1, output2])\nAnswers:',
+  o:['1','2','3','4'],
+  a:3,e:'The two outputs of the first part of the model must be put together before feeding them to the last output layer.'}
+
+// ── Oct 31, 2024 ──────────────────────────────────────────────────────
+,{m:'Oct 31, 2024',mock:true,
+  q:'What is the primary goal of using dropout in neural networks?',
+  o:['To improve the accuracy of the training set','To prevent overfitting by randomly dropping units during training','To increase the learning rate','To make the model more complex'],
+  a:1,e:'connections) during training, which forces the network to not rely on specific neurons.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'Which regularization technique adds a penalty proportional to the sum of absolute values of the model\nparameters?',
+  o:['L2 regularization','Dropout','L1 regularization','Batch normalization'],
+  a:2,e:'encouraging sparsity in the learned parameters.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'What is the main advantage of using an ensemble method such as Random Forest over a single\ndecision tree?',
+  o:['Avoid overfitting','Higher accuracy and lower variance','Easier interpretation of the model','More complex decision rules'],
+  a:1,e:'variance and improve the generalization of the model.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'What does the term "overfitting" refer to in machine learning?',
+  o:['A model that performs well on the test data','A model that has too many features','A model that performs well on training data but poorly on new, unseen data','A model that underfits new data'],
+  a:2,e:'to new, unseen data due to learning too many specific patterns in the training set.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'Which method would you use to handle an imbalanced dataset in classification tasks?',
+  o:['Use Mean Squared Error as the loss function','Drop the majority class samples','None of the other','Use dimensionality reduction techniques'],
+  a:2,e:'majority class is a common technique to balance the dataset in classification tasks.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'Which type of neural network is primarily used for sequential data, such as time series or natural\nlanguage processing tasks?',
+  o:['Convolutional Neural Network (CNN)','Recurrent Neural Network (RNN)','Feedforward Neural Network','Radial Basis Function Network'],
+  a:1,e:'memory of previous inputs through hidden states, making them ideal for tasks such as time series or natural language processing.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'Which of the following is an unsupervised machine learning algorithm?',
+  o:['Support Vector Machines (SVM)','Linear Regression','K-Means Clustering','Logistic Regression'],
+  a:2,e:'different groups based on their similarities.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'In which scenario would you apply a grid search in machine learning?',
+  o:['To reduce the dimensionality of the dataset','To evaluate model performance on the training set','None of the other','To remove irrelevant features from the dataset'],
+  a:2,e:'combination that provides the best model performance.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'In ensemble learning, what is the goal of the "bagging" technique?',
+  o:['To combine weak models in sequence','To average predictions from different models','To decrease model variance','To optimize hyperparameters'],
+  a:1,e:'multiple models, typically trained on different subsets of the data.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'Which of the following is the primary purpose of using a validation set in machine learning?',
+  o:['To train the model','To test the model on unseen data','To tune hyperparameters and monitor overfitting','To optimize the learning rate'],
+  a:2,e:'performance on unseen data during training to avoid overfitting. The following two questions are reserved for those students which did not do the take-home.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'Consider the following Python code to split a dataset for cross-validation. Which part is missing?\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.model_selection import KFold\nkf = KFold(n_splits=5)\nfor train_index, test_index in kf.split(X):\nX_train, X_test = X[train_index], X[test_index]\ny_train, y_test = y[train_index], y[test_index]\n# Missing part here',
+  o:['model.fit(X_train, y_train)','scaler = StandardScaler()','train_test_split(X, y)','model.evaluate(X_test, y_test)'],
+  a:0,e:'to train and evaluate the model on different splits of the data.'}
+,{m:'Oct 31, 2024',mock:true,
+  q:'Consider the following Python code for preprocessing numerical data. What is the correct order of\noperations?\nimport pandas as pd\ndf = pd.read_csv(\'data.csv\')\n# Operations needed:\n1. Normalize the data using min-max scaling\n2. Handle missing values\n3. Split the data into training and test sets\n4. Standardize the features using z-score normalization',
+  o:['2, 3, 1, 4','3, 2, 4, 1','2, 3, 4, 1','2, 4, 1, 3'],
+  a:2,e:'features using z-score normalization, and optionally apply min-max scaling if needed for certain models.'}
+
+// ── May 20, 2025 ──────────────────────────────────────────────────────
+,{m:'May 20, 2025',mock:true,
+  q:'Which of the following techniques is primarily used to address the issue of a model “learning noise”\n(overfitting) from the training data?',
+  o:['Increasing the number of hidden layers','Applying a very high learning rate','Implementing L2 regularization','Decreasing the amount of training data'],
+  a:2,e:'weights. This discourages the model from assigning very large weights to specific features, which can be a sign of fitting the noise in the training data.'}
+,{m:'May 20, 2025',mock:true,
+  q:'Which of the following ensemble methods builds multiple predictors sequentially, where each new\npredictor tries to correct the errors made by the previous ones?',
+  o:['Random Forest','Bagging','Boosting','Stacking'],
+  a:2,e:'Each subsequent model focuses on the instances that were misclassified by the previous models, thereby improving the overall performance. Random Forest and Bagging, on the other hand, build independent models in parallel. Stacking combines the predictions of multiple diverse models using another model.'}
+,{m:'May 20, 2025',mock:true,
+  q:'What is the key difference in how L1 and L2 regularization affect the model\'s weights?',
+  o:['L1 encourages smaller weights overall, while L2 can lead to some weights being exactly zero.','L2 encourages smaller weights overall, while L1 can lead to some weights being exactly zero.','L1 penalizes large weights more heavily than L2.','L2 is more effective at feature selection than L1.'],
+  a:1,e:'towards zero more evenly. L1 regularization penalizes the absolute value of the weights, which has the effect of driving some weights to exactly zero, effectively performing feature selection by making those features irrelevant to the model'}
+,{m:'May 20, 2025',mock:true,
+  q:'After defining the encoder and decoder models separately in Keras, how do you typically combine them\nto create the complete autoencoder model for training?',
+  o:['By adding the decoder model to the encoder model using the add() method.','By concatenating the outputs of the encoder and decoder.','By defining the autoencoder model with the encoder\'s input as the input and the decoder\'s output','By training the encoder and decoder models independently and then averaging their weights.'],
+  a:2,e:'to the encoder) and its output layer (which is the output of the decoder when the encoder\'s output is fed into it). This creates an end-to-end model that learns to reconstruct the input.'}
+,{m:'May 20, 2025',mock:true,
+  q:'Arrange the following Keras code snippets in the correct order to train a neural network model:\n1. model.fit(X_train, y_train, epochs=10, batch_size=32)\n2. model = Sequential([Dense(64, activation=\'relu\', input_shape=(100,)),\nDense(10, activation=\'softmax\')])\n3. from tensorflow.keras.models import Sequential\n4. X_train = np.random.rand(1000, 100)\n5. y_train = np.random.randint(0, 10, 1000)\nWhich of the following orderings would correctly train the model?',
+  o:['3, 2, 4, 5, 1','2, 3, 4, 5, 1','4, 5, 3, 2, 1','3, 4, 5, 2, 1'],
+  a:0,e:'• 3: You need to import the Sequential model class first. • 2: Then, you define the architecture of your neural network model using Sequential. •'}
+,{m:'May 20, 2025',mock:true,
+  q:'Arrange the following Keras code snippets to correctly define a model, compile it with a custom metric,\nand then prepare some dummy data:\n1. def custom_metric(y_true, y_pred): return\ntf.keras.backend.mean(tf.keras.metrics.binary_accuracy(y_true, y_pred))\n2. model.compile(optimizer=\'rmsprop\', loss=\'binary_crossentropy\',\nmetrics=[\'accuracy\', custom_metric])\n3. model = tf.keras.models.Sequential([Dense(1, activation=\'sigmoid\',\ninput_shape=(5,))])\n4. import tensorflow as tf\n5. X_train = np.random.rand(100, 5)\nWhich of the following orders would result in a working Keras training setup?',
+  o:['4, 3, 1, 2, 5','4, 3, 2, 5, 1','3, 4, 1, 2, 5','3, 4, 2, 1, 5'],
+  a:0,e:'• 4: You need to import the TensorFlow library to use Keras functionalities. • 3: Then, you define the sequential neural network model architecture. •'}
+,{m:'May 20, 2025',mock:true,
+  q:'A simple autoencoder with a single linear hidden layer, trained to minimize reconstruction error, learns\na representation that is closely related to the principal components of the input data. Which of the\nfollowing statements best describes this relationship?',
+  o:['The weights of the encoder in such an autoencoder directly correspond to the eigenvalues obtained','The bottleneck layer\'s activations in the autoencoder form an orthogonal basis that is identical to the','The linear autoencoder essentially performs a linear dimensionality reduction where the hidden','The decoder weights of the linear autoencoder directly represent the principal component vectors,'],
+  a:2,e:'mean squared error of reconstruction, it learns a linear transformation that approximates the subspace spanned by the principal components. The bottleneck layer captures a lower-dimensional representation of the data within this subspace. The “coordinates” chosen by the autoencoder are not necessarily those of PCs if we do not add constraints of orthonormality for the weights and orthogonality for'}
+,{m:'May 20, 2025',mock:true,
+  q:'While both Principal Component Analysis (PCA) and autoencoders can be used for dimensionality\nreduction, autoencoders offer a significant advantage over PCA in certain scenarios. What is the\nprimary reason for this advantage?',
+  o:['Autoencoders are guaranteed to find a lower-dimensional representation with less information loss','Autoencoders can learn non-linear transformations of the data, allowing them to capture more','Autoencoders are computationally less expensive to train on large datasets compared to PCA.','Autoencoders always produce a more interpretable latent space compared to the principal'],
+  a:1,e:'of the original features that capture the most variance. Autoencoders, especially those with non-linear activation functions in their hidden layers, can learn complex, non-linear mappings between the input and the lower-dimensional representation (and back to the output). This allows them to effectively reduce the dimensionality of data with non-linear structures that PCA might struggle to capture '}
+,{m:'May 20, 2025',mock:true,
+  q:'Given a Pandas DataFrame named df with numerical columns \'A\', \'B\', and \'C\', which of the following\nPandas DataFrame properties and methods would you directly use to quickly generate a scatter plot\nshowing the relationship between columns \'A\' on the x-axis and \'B\' on the y-axis?',
+  o:['plot.df(x=\'A\', y=\'B\', kind=\'scatter\')','df[[\'A\', \'B\']].scatter()','df.plot.scatter(x=\'A\', y=\'B\')','df.scatter(\'A\', \'B\')'],
+  a:2,e:'like .scatter(). This method directly allows you to specify the columns for the x and y axes. Option C correctly utilizes the dedicated .scatter() plotting method accessed as a property of .plot. Option A is incorrect as the method and the object are in reverse order. Option B  and D are incorrect as DataFrames do not have a direct .scatter() method.'}
+,{m:'May 20, 2025',mock:true,
+  q:'Machine Learning and Statistics are closely related fields, often addressing similar problems. However,\ntheir historical emphasis and approaches can differ. Which of the following statements best highlights a\nkey distinction in their traditional primary focus?',
+  o:['Statistics traditionally focuses more on prediction accuracy, while Machine Learning emphasizes','Machine Learning historically has placed a greater emphasis on developing algorithms that can','Statistics primarily deals with supervised learning tasks, whereas Machine Learning encompasses','Machine Learning relies heavily on mathematical rigor, while Statistics is more empirically driven.'],
+  a:1,e:'inferences about populations from samples, hypothesis testing, and understanding the underlying processes generating the data, often with strong theoretical backing. This excludes D). Machine Learning, especially in its earlier days, was more driven by the goal of building algorithms that could effectively learn from data and make accurate predictions, sometimes with less emphasis on strict statist'}
+,{m:'May 20, 2025',mock:true,
+  q:'The following Python code performs cross-validation for a classification task. What essential step is\nmost likely represented by the # Missing operation comment?\nI remind you that StratifiedKFold splits datasets and that classification_report    provides an\nevaluation of the classification metrics.\nfrom sklearn.model_selection import StratifiedKFold\nfrom sklearn.svm import SVC\nfrom sklearn.datasets import load_iris\nfrom sklearn.metrics import classification_report\niris = load_iris()\nX, y = iris.data, iris.target\nskf = StratifiedKFold(n_splits=3)\nmodel = SVC(kernel=\'linear\')\nfor train_index, test_index in skf.split(X, y):\nX_train, X_test = X[train_index], X[test_index]\ny_train, y_test = y[train_index], y[test_index]\nmodel.fit(X_train, y_train)\ny_pred = model.predict(X_test)\n# Missing operation here',
+  o:['X_test = scaler.fit_transform(X_test)','print(f"Predicted classes: {y_pred}")','cv_results.append(model.score(X_test, y_test))','print(classification_report(y_test, y_pred))'],
+  a:3,e:'within a cross-validation loop, the next logical step is to evaluate the performance of the model on that specific fold\'s test data. As stated above classification_report provides a detailed evaluation of classification metrics like precision, recall, F1-score, and support.'}
+,{m:'May 20, 2025',mock:true,
+  q:'Consider the following Python code snippet intended to read a CSV file named \'my_data.csv\' from your\nGoogle Drive in a Colab notebook. Which crucial step is missing before the pd.read_csv() function can\nsuccessfully access the file?\nimport pandas as pd\nfrom google.colab import drive\n# Missing step here\ndf = pd.read_csv(\'/content/drive/MyDrive/Data/my_data.csv\')\nprint(df.head())',
+  o:['drive.unmount(\'/content/drive\')','from google.colab import files','drive.mount(\'/content/drive\')','df.to_csv(\'/content/drive/MyDrive/Processed_Data/output.csv\')'],
+  a:2,e:'Drive to the Colab virtual machine\'s file system. The drive.mount(\'/content/drive’) command handles this authentication and mounting process.'}
+
+// ── June 4, 2025 ──────────────────────────────────────────────────────
+,{m:'June 4, 2025',mock:true,
+  q:'Which of the following methods aims to reduce overfitting? Note: choose the method whose only aim is\nthat described in the question.',
+  o:['Batch normalization','Dropout','Gradient clipping','Early stopping'],
+  a:1,e:'percentage of neurons are randomly "dropped out" (their outputs are set to zero). This forces the network to learn more robust features and prevents it from relying too heavily on any single neuron, thereby reducing overfitting.'}
+,{m:'June 4, 2025',mock:true,
+  q:'In Canonical Correlation Analysis (CCA), what is the primary objective when analyzing two sets of\nvariables, X and Y?',
+  o:['To identify latent classes or groups within the data.','To reduce the dimensionality of each set of variables independently.','To find linear combinations of variables from each set that are maximally correlated.','To predict one set of variables using the other set.'],
+  a:2,e:'variables, X and Y, such that the correlation between these canonical variates is maximized. The goal is to uncover the underlying relationships or shared information between the two sets.'}
+,{m:'June 4, 2025',mock:true,
+  q:'In the context of principal components, what is the R square you get from regressing the first\ncomponent on the second component (and an intercept)?',
+  o:['The eigenvalue corresponding to the second component','The eigenvalue corresponding to the first component','The difference between the eigenvalue of the first component and the eigenvalue of the second','None of these'],
+  a:3,e:'Principal components are orthogonal by construction — each PC is uncorrelated with all others. Regressing PC2 on PC1 yields R² = 0 exactly. None of the other listed options (eigenvalues, differences) equal this value.'}
+,{m:'June 4, 2025',mock:true,
+  q:'Which of the following activation functions outputs values between 0 and 1, making it suitable for\nbinary classification tasks where the output can be interpreted as a probability?',
+  o:['ReLU (Rectified Linear Unit)','Tanh (Hyperbolic Tangent)','Sigmoid','Leaky ReLU'],
+  a:2,e:'outputs values between o and +infinity. Tanh outputs values between -1 and 1. Leaky ReLU (if the alpha is positive) outputs values between – and + infinity.'}
+,{m:'June 4, 2025',mock:true,
+  q:'The following five statements are not in order. Find the order which satisfies the following purpose.\nGiven a 2D NumPy array, calculate the sum of all elements that are greater than the average of the\nentire array.\n1) sum_above_avg = np.sum(filtered_data)\n2) arr = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])\n3) average_val = np.mean(arr)\n4) mask = arr > average_val\n5) filtered_data = arr[mask]',
+  o:['2, 3, 4, 5, 1','2, 4, 3, 5, 1','2, 3, 5, 4, 1','3, 4, 5, 1, 2'],
+  a:0,e:'subsequent operations depend on its existence and values. average_val = np.mean(arr) To find elements greater than the average, you must first calculate the average of the entire array. D) mask = arr > average_val  This statement creates a boolean mask by comparing each element of arr to average_val. filtered_data = arr[mask] This uses the boolean mask to select only the elements from arr that satisf'}
+,{m:'June 4, 2025',mock:true,
+  q:'The following six statements are not in order. Find the order which satisfies the following\npurpose. You have a pandas DataFrame X_data containing numerical features. You want to apply\nStandardScaler for preprocessing, then perform PCA to reduce dimensionality to 3 components, and\nfinally access the explained variance ratio of these components. (Assume X_data is defined)\n1) pca = PCA(n_components=3)\n2) import pandas as pd\n3) from sklearn.preprocessing import StandardScaler\n4) scaled_data = scaler.fit_transform(X_data)\n5) principal_components = pca.fit_transform(scaled_data)\n6) print(pca.explained_variance_ratio_)',
+  o:['3, 2, 4, 1, 5, 6','2, 3, 4, 1, 5, 6','2, 3, 4, 1, 5, 6','None of these'],
+  a:3,e:'StandardScaler(). That is: an instance of StandardScaler needs to be created. Otherwise, 4) calls something which does not exist'}
+,{m:'June 4, 2025',mock:true,
+  q:'Consider Autoencoders and Linear Discriminant Analysis (LDA). Both techniques can perform\ndimensionality reduction, but their primary objectives differ significantly. These are four summary\ndefinitions of what the two techniques do. Some definition may be correct, some partially correct, but\nonly one of the definitions is completely wrong. Which one?',
+  o:['Autoencoders always aim to reduce dimensionality, while LDA can also be used for classification.','Autoencoders are supervised learning models focused on reconstruction, while LDA is an','Autoencoders learn a lower-dimensional representation that best reconstructs the original data,','Both autoencoders and LDA can be applied to unlabeled data.'],
+  a:3,e:'“label”. For the autoencoder this, as a rule, is the input itself. Notice that, while autoencoders are suggestive of principal components, in ML they are a supervised method, while, usually, PC are classified as an unsupervised method.'}
+,{m:'June 4, 2025',mock:true,
+  q:'Unlike parameters in traditional linear regression, the individual weights and biases of a neural network\nare often not directly interpretable in statistical terms, nor do they typically have readily available\nanalytical confidence intervals. Which of the following is the primary reason for this difficulty?',
+  o:['Neural networks are overparametrized. Many different sets of values of the parameters may','The number of parameters in a neural network is typically much smaller than the number of','Neural network parameters are always initialized to zero, which complicates statistical analysis.','Gradient descent optimization algorithms do not provide covariance matrices of the estimated'],
+  a:0,e:'parameter values correspond to the same input-output relationship defined by the NN. This makes it difficult to define specific interpretations for single parameters.'}
+,{m:'June 4, 2025',mock:true,
+  q:'Consider the following Python code snippet intended to create a box plot of a numerical column \'Value\'\ngrouped by a categorical column \'Category\' from a pandas DataFrame. Which crucial import statement\nis missing to be sure the boxplot() function is enabled directly from the DataFrame?\nimport pandas as pd\n# Assume df is a pandas DataFrame with columns \'Category\' and \'Value\'\n# df = pd.DataFrame({\'Category\': [\'A\', \'B\', \'A\', \'B\', \'A\'], \'Value\': [10, 15,\n12, 18, 11]})\n# Missing step here\ndf.boxplot(column=\'Value\', by=\'Category\')\nplt.title(\'Value by Category\')\nplt.suptitle(\'\') # Suppress the default super title\nplt.show()',
+  o:['import numpy as np','import matplotlib.pyplot as plt','import seaborn as sns','from scipy import stats'],
+  a:1,e:'plotting capabilities are provided by Matplotlib. Therefore, to ensure that the boxplot() method (and subsequent plt.title(), plt.suptitle(), plt.show() calls) can actually render and display the plot, matplotlib.pyplot must be imported, usually aliased as plt.'}
+,{m:'June 4, 2025',mock:true,
+  q:'You are building a multi-class classification model where each instance belongs to exactly one of\nseveral distinct categories (e.g., classifying images as \'cat\', \'dog\', or \'bird\'). The model\'s output layer uses\na softmax activation function to produce a probability distribution over these classes. Which loss\nfunction should you choose? (Several of these may “function”, in the sense that the program may run.\nHowever, only one is reasonable and corresponds with the most frequently used)',
+  o:['Sparse Categorical Cross-Entropy','Binary Cross-Entropy','Mean Absolute Error (MAE)','Categorical Cross-Entropy'],
+  a:3,e:'problems where the true labels are provided in a one-hot encoded format (e.g., [0, 1, 0] for \'dog\' if there are three classes). It works perfectly with models that output a probability distribution over classes, typically achieved using a softmax activation in the output layer. Sparse Categorical Cross- Entropy (Option A) is similar but used when the true labels are integer indices rather than one'}
+,{m:'June 4, 2025',mock:true,
+  q:'The following six statements are not in order. Find the order which satisfies the following purpose. You\nwant to define a simple Keras Autoencoder model with a single dense encoder layer, a single dense\ndecoder layer, and compile it for training with \'mse\' loss and \'adam\' optimizer. Assume the input\ndimension is 784.\n1) decoder_output = layers.Dense(784, activation=\'sigmoid\')(encoded)\n2) autoencoder.compile(optimizer=\'adam\', loss=\'mse\')\n3) from tensorflow.keras import layers, models\n4) encoded = layers.Dense(32, activation=\'relu\')(input_img)\n5) input_img = models.Input(shape=(784,))\n6) autoencoder = models.Model(inputs=input_img,outputs=decoder_output)',
+  o:['3, 5, 4, 1, 6, 2','5, 3, 4, 1, 6, 2','4, 3, 5, 1, 6, 2','5, 3, 4, 6, 1, 2'],
+  a:0,e:'modules (layers for defining layers, models for Input and Model) before you can use any of their components. input_img = models.Input(shape=(784,)): The input layer of the model must be defined first, as it\'s the starting point for the data flow through the autoencoder. encoded = layers.Dense(32, activation=\'relu\')(input_img): This defines the encoder layer. decoder_output = layers.Dense(784, activatio'}
+,{m:'June 4, 2025',mock:true,
+  q:'The statements in the following code were used during the course to generate binomial data with a\nrandom probability.\nThe statements are NOT in the correct order.\nWhich of the proposed orders shall work?\n# Generate simulated data\n1) X = np.random.normal(size=(n, 2))\n2) X = sm.add_constant(X)  # Add a constant for the intercept\n3) n = 100\n4) prob = 1 / (1 + np.exp(-np.dot(X, beta_true)))\n5) beta_true = np.array([0.5, 1.0, -0.5])  # True coefficients\n6) np.random.seed(0)\n7) y = np.random.binomial(1, prob, size=n)  # Simulate binary outcomes',
+  o:['3, 4, 2, 6, 5, 1, 7','6, 3, 1, 2, 5, 4, 7','1, 2, 3, 6, 4, 5, 7','6, 3, 1, 4, 5, 7, 2'],
+  a:1,e:'work, but is the only working order in those presented in the answers. (For brevity I recall just one error per statement. More are there) In A) 4 cannot be before 3 and 2 cannot be before 1. In C) 4 cannot be before 5. In D) 4 cannot be before 5.'}
+
+// ── Sept 5, 2025 ──────────────────────────────────────────────────────
+,{m:'Sept 5, 2025',mock:true,
+  q:'Which of the following is the main use of Ridge Regression?',
+  o:['To increase model complexity','To eliminate features entirely','To reduce multicollinearity','To compute decision trees'],
+  a:2,e:'Ridge (L2) regression adds a penalty on the squared magnitude of coefficients, which shrinks correlated coefficients toward each other and reduces multicollinearity.'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'Find the correct order to normalize a DataFrame column and compute its mean:\n1) df[\'col\'] = scaler.fit_transform(df[[\'col\']])\n2) from sklearn.preprocessing import MinMaxScaler\n3) scaler = MinMaxScaler()\n4) print(df[\'col\'].mean())\n',
+  o:['2, 3, 1, 4','3, 2, 4, 1','No order is correct: a statement is missing','2, 3, 4, 1'],
+  a:0,e:'Import MinMaxScaler (2) → instantiate scaler (3) → fit and transform (1) → print mean (4).'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'Which of the following is FALSE regarding Gradient Descent?',
+  o:['It can converge to local minima.','It is deterministic for convex loss functions.','It guarantees global minimum for non-convex functions.','It updates parameters iteratively.'],
+  a:2,e:'For non-convex loss surfaces (typical in neural networks), gradient descent can get stuck in local minima or saddle points — it does NOT guarantee the global minimum.'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'What is the result of applying PCA on a dataset where all features have the same variance (say 1) and the correlations between each pair of features are positive and equal (say .5)?',
+  o:['All principal components have the same variance','Only one component will have non-zero variance','The PCA fails due to multicollinearity','All the values of the first eigenvector have the same sign'],
+  a:3,e:'With equal positive correlations, the first eigenvector captures the common trend — all loadings point in the same direction (all positive or all negative).'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'Which activation function is not differentiable at zero and is often used to introduce sparsity in neural networks?',
+  o:['ReLU','Tanh','Sigmoid','Softmax'],
+  a:0,e:'ReLU = max(0, x) has a kink at x=0 (non-differentiable there) and outputs 0 for all negative inputs, creating sparsity. Tanh and Sigmoid are smooth everywhere.'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'Why is it generally not recommended to use Mean Squared Error (MSE) as a loss function in a classification problem? (Choose the most relevant answer)',
+  o:['MSE leads to model underfitting','MSE assumes normally distributed residuals','MSE doesn\'t penalize wrong classifications','MSE treats class labels as continuous values'],
+  a:3,e:'Class labels (0, 1, 2...) are categories, not continuous quantities. MSE treats them as real numbers on a scale, giving nonsensical intermediate penalties.'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'Which of the following activation functions would be most appropriate for the output layer of a neural network designed to predict whether an email is spam or not spam?',
+  o:['Sigmoid','ReLU','MSE','Linear'],
+  a:0,e:'Binary classification requires a probability output in [0,1]. Sigmoid squashes any real value into (0,1), making it the natural choice. MSE is a loss function, not an activation.'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'In a standard autoencoder, how is the model trained? (Choose the answer that characterizes an autoencoder)',
+  o:['By minimizing the loss between the predicted output and the target labels.','By maximizing the reconstruction error.','By minimizing the sum of squared differences between the input and the output (reconstruction loss).','By backpropagating the gradient of the latent space.'],
+  a:2,e:'An autoencoder is trained to reconstruct its input. The target is the input itself, and the loss is the reconstruction error (e.g. MSE between input and output).'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'In the following code snippet used in the course two statements have been (wrongly) switched. Which are these?\n1) from pandas.core.common import random_state\n2) from sklearn.neighbors import KNeighborsRegressor\n3) knn = KNeighborsRegressor(n_neighbors=3)\n4) ypred_train=knn.predict(Xtrain)\n5) knn.fit(Xtrain, ytrain)\n6) print(knn.score(Xtrain,ytrain))\n7) ypred_test=knn.predict(Xtest)\n8) print(knn.score(Xtest,ytest))\n',
+  o:['3 and 4','4 and 5','5 and 6','6 and 7'],
+  a:1,e:'knn.fit() must come before knn.predict(). Lines 4 and 5 are swapped: fit (5) must precede predict (4).'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'Which of the following terms is NOT usual in cluster analysis?',
+  o:['Hierarchical','k-means','Linkage','SoftMax'],
+  a:3,e:'Hierarchical clustering, k-means, and linkage criteria are all standard cluster analysis concepts. SoftMax is an activation function used in neural network classification layers.'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'Which sequence defines and compiles a logistic regression model in Keras for binary classification?\n1) from tensorflow.keras import layers, models\n2) model = models.Sequential()\n3) model.add(layers.Dense(1, activation=\'sigmoid\'))\n4) model.compile(optimizer=\'adam\', loss=\'binary_crossentropy\')\n5) model.add(layers.Input(shape=(10,)))\n',
+  o:['1, 2, 5, 3, 4','1, 2, 4, 3, 5','1, 2, 3, 5, 4','1, 2, 3, 4, 5'],
+  a:0,e:'Import (1) → Sequential model (2) → Input layer (5) → Dense sigmoid (3) → compile (4). The Input layer must be added before the Dense layer.'}
+,{m:'Sept 5, 2025',mock:true,
+  q:'One of the following statements does not allow the others to work. Which one?\n1) import numpy\n2) data = np.random.normal(loc=0, scale=1, size=1000)\n3) mean = np.mean(data)\n4) std_err = np.std(data) / np.sqrt(len(data))\n5) ci = (mean - 1.96 * std_err, mean + 1.96 * std_err)\n',
+  o:['1','2','3','4'],
+  a:0,e:'import numpy imports the library but doesn\'t create the alias np. All subsequent lines use np.* which would raise a NameError. It should be: import numpy as np.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'Which of the following best describes what a Large Language Model (LLM) fundamentally is?',
+  o:['A rule-based system that matches input patterns to predefined responses',
+     'A parameterized function that maps token embeddings to a probability distribution over the vocabulary',
+     'A database that retrieves pre-written text passages based on keyword search',
+     'A decision tree trained on text data to classify user intent'],
+  a:1,
+  e:'An LLM is a parameterized function (neural network) that takes token embeddings as input and outputs logits/probabilities over the vocabulary, enabling next-token prediction and text generation.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'What does an LLM actually process during text generation?',
+  o:['Raw text strings decoded from UTF-8 bytes',
+     'Integer token IDs looked up in a tokenizer vocabulary',
+     'Numerical embedding vectors representing tokens',
+     'Binary-encoded character sequences'],
+  a:2,
+  e:'Tokens are first converted to integer IDs, then looked up in an embedding matrix to produce dense numerical vectors. The model only ever processes these numerical embeddings — never raw text.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'In the context of LLMs, what is a "prompt"?',
+  o:['A training example used during fine-tuning',
+     'The initial text provided to the model that conditions its continuation',
+     'A special system token that controls the model\'s temperature',
+     'A hyperparameter that sets the maximum output length'],
+  a:1,
+  e:'A prompt is the input text sequence given to the model at inference time. It acts as the initial condition that the model conditions on when generating its continuation.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'In a transformer\'s self-attention mechanism, which two components are used to compute attention scores?',
+  o:['Keys (K) and Values (V)',
+     'Queries (Q) and Keys (K)',
+     'Queries (Q) and Values (V)',
+     'Embeddings (E) and Positional Encodings (P)'],
+  a:1,
+  e:'Attention scores are computed as the dot product of Q (Query) and K (Key) matrices, scaled by √d_k. The resulting softmax weights are then applied to V (Values) to produce the output.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'What is the purpose of the causal mask in a decoder-only transformer (like GPT)?',
+  o:['To mask padding tokens so they do not contribute to attention computations',
+     'To ensure each token can only attend to itself and earlier tokens, not future tokens',
+     'To prevent the model from attending to tokens outside a fixed context window',
+     'To normalize attention weights so they sum to one across all heads'],
+  a:1,
+  e:'The causal (autoregressive) mask sets future positions to −∞ before the softmax, ensuring that when predicting token t, the model can only attend to tokens 1…t. This is essential for left-to-right generation.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'What role do normalization layers (LayerNorm or RMSNorm) play in transformer training?',
+  o:['They reduce the vocabulary size to speed up the softmax computation',
+     'They stabilize activations to ensure numerical stability and enable training of very deep networks',
+     'They add positional information to the token embeddings',
+     'They compress the key-value cache to reduce memory usage'],
+  a:1,
+  e:'LayerNorm and RMSNorm normalize activations within each layer to zero mean / unit variance (or similar), preventing exploding/vanishing activations and enabling stable training of very deep transformer stacks.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'Which statement best describes how LoRA (Low-Rank Adaptation) works?',
+  o:['It replaces all weight matrices with smaller random projections',
+     'It fine-tunes only the last layer of the transformer while freezing the rest',
+     'It freezes the original model weights and injects small trainable low-rank decomposition matrices alongside them',
+     'It distills the full model into a smaller student model during fine-tuning'],
+  a:2,
+  e:'LoRA freezes the pretrained weights W and adds a trainable low-rank bypass: ΔW = A×B (where A, B are small matrices). Only A and B are trained, drastically reducing the number of parameters to update.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'How do Retrieval-Augmented Generation (RAG) and fine-tuning differ in how they add new knowledge to an LLM?',
+  o:['RAG changes the model weights; fine-tuning injects external documents into the prompt',
+     'RAG injects retrieved external text into the prompt at inference time; fine-tuning updates the model\'s weights during training',
+     'RAG and fine-tuning are identical — both modify the model\'s parameters',
+     'RAG is only for image models; fine-tuning is only for language models'],
+  a:1,
+  e:'RAG retrieves relevant documents and appends them to the prompt at inference time — no weight changes. Fine-tuning updates the model\'s weights on a dataset, baking knowledge into the parameters.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'Which loss function is typically used to train Large Language Models?',
+  o:['Mean Squared Error between predicted and target embeddings',
+     'Binary Cross-Entropy for token-level binary classification',
+     'Categorical Cross-Entropy over the vocabulary distribution for next-token prediction',
+     'Contrastive loss between positive and negative text pairs'],
+  a:2,
+  e:'LLM training is a next-token prediction task: at each position the model predicts a distribution over the vocabulary and is penalized by Categorical Cross-Entropy (equivalently, negative log-likelihood) against the true next token.'}
+,{m:'LLM Mock 2026', mock:true,
+  q:'How does an LLM typically handle a word that is not in its vocabulary (OOV)?',
+  o:['The model raises a KeyError and stops generation',
+     'The word is silently ignored and skipped in the input',
+     'The word is represented as a special unknown token (e.g., [UNK]) or split into subword tokens by the tokenizer',
+     'The model replaces the word with the most similar in-vocabulary word automatically'],
+  a:2,
+  e:'Modern tokenizers use subword algorithms (BPE, WordPiece, SentencePiece) that split unknown words into subword units, or fall back to an [UNK] token, so true OOV situations are rare but handled gracefully.'}
+,{m:'Programming Mock 2026', mock:true,
+  q:'What is the correct order of steps to build and train a binary classification neural network in Keras? 1) model.fit(X_train, y_train, epochs=10)  2) model.compile(optimizer=\'adam\', loss=\'binary_crossentropy\', metrics=[\'accuracy\'])  3) model = Sequential()  4) model.add(Dense(1, activation=\'sigmoid\'))',
+  o:['3, 4, 2, 1',
+     '3, 2, 4, 1',
+     '2, 3, 4, 1',
+     '3, 4, 1, 2'],
+  a:0,
+  e:'Create model (3) → add output layer (4) → compile (2) → fit (1). Order: 3,4,2,1.'}
+,{m:'Programming Mock 2026', mock:true,
+  q:'In the Keras Functional API, which line correctly connects a Dense layer to an input?',
+  o:['x = layers.Dense(64)(input_layer)',
+     'x = layers.Dense(input_layer, 64)',
+     'x = Dense.connect(input_layer, units=64)',
+     'x = input_layer.add(Dense(64))'],
+  a:0,
+  e:'In the Functional API, layers are called as functions on their input tensors: x = layers.Dense(64)(input_layer). The layer instance is called with the previous tensor as its argument.'}
+,{m:'Programming Mock 2026', mock:true,
+  q:'When using pd.get_dummies() for one-hot encoding, why should you use drop_first=True?',
+  o:['It speeds up computation by reducing the number of columns',
+     'It avoids the dummy variable trap (perfect multicollinearity) by dropping one redundant category',
+     'It ensures all remaining columns have zero mean',
+     'It removes the most common category which is usually uninformative'],
+  a:1,
+  e:'With K categories, K-1 dummies fully encode the information. Keeping all K creates perfect multicollinearity (dummy variable trap). drop_first=True removes one column to prevent this.'}
+,{m:'Programming Mock 2026', mock:true,
+  q:'In an LSTM sequence-to-sequence model, what layer should be placed after the encoder LSTM to allow the decoder LSTM to process a sequence? Line 1: encoder_input = Input(shape=(timesteps, features))  Line 2: encoded = LSTM(latent_dim, return_sequences=False)(encoder_input)  Line 3: ???  Line 4: decoded = LSTM(features, return_sequences=True)(repeated)',
+  o:['A Dense(latent_dim) layer',
+     'A RepeatVector(timesteps) layer assigned to repeated',
+     'A Reshape((1, latent_dim)) layer',
+     'A Flatten() layer'],
+  a:1,
+  e:'RepeatVector(timesteps) repeats the encoder\'s context vector T times, creating a (batch, timesteps, latent_dim) tensor that the decoder LSTM can process as a sequence.'}
+,{m:'Programming Mock 2026', mock:true,
+  q:'Which of the following pandas indexing statements is INCORRECT for accessing a value at date \'2023-01-01\' in the first column of a time-indexed DataFrame?',
+  o:['df.loc[\'2023-01-01\', df.columns[0]]',
+     'df.loc[\'2023-01-01\'][df.columns[0]]',
+     'df[\'2023-01-01\':\'2023-01-01\'][df.columns[0]].iloc[0]',
+     'df.iloc[\'2023-01-01\', 0]'],
+  a:3,
+  e:'df.iloc uses integer-based indexing — passing a string date label to iloc raises a TypeError. To access by label you must use df.loc, not df.iloc.'}
+,{m:'Programming Mock 2026', mock:true,
+  q:'What happens if you call model.predict() before model.fit() in scikit-learn?',
+  o:['predict() returns all zeros as a default output',
+     'predict() raises a NotFittedError because the model has not been trained yet',
+     'predict() silently trains the model on the test data before predicting',
+     'predict() returns random predictions based on the initial weights'],
+  a:1,
+  e:'Scikit-learn estimators raise a NotFittedError (or similar) if predict() is called before fit(). You must fit the model on training data before making predictions.'}
+];
+
+// ════════════════════════════════════════════════
+// FLASHCARD LOGIC
+// ════════════════════════════════════════════════
+let fcAll=[...FC],fcFiltered=[...FC],fcIdx=0,fcFlipped=false,fcCat='All';
+const fcCats=['All',...new Set(FC.map(c=>c.c))];
+
+function initFC(){
+  const bar=document.getElementById('fc-cats');bar.innerHTML='';
+  fcCats.forEach(cat=>{
+    const b=document.createElement('button');
+    b.className='cat-btn'+(cat===fcCat?' active':'');
+    b.textContent=cat;b.onclick=()=>{fcCat=cat;filterFC();};
+    bar.appendChild(b);
+  });
+  filterFC();
+}
+function filterFC(){
+  document.querySelectorAll('#fc-cats .cat-btn').forEach(b=>b.classList.toggle('active',b.textContent===fcCat));
+  fcFiltered=fcCat==='All'?[...fcAll]:fcAll.filter(c=>c.c===fcCat);
+  fcIdx=0;showFC();
+}
+function showFC(){
+  const card=document.getElementById('fc-card');
+  card.classList.remove('flipped');fcFlipped=false;
+  document.getElementById('fc-flip-btn').textContent='Reveal answer';
+  const c=fcFiltered[fcIdx];
+  document.getElementById('fc-cat-label').textContent=c.c;
+  document.getElementById('fc-q').textContent=c.q;
+  document.getElementById('fc-a').textContent=c.a;
+  const tip=document.getElementById('fc-tip');
+  if(c.t){tip.textContent='⚠ '+c.t;tip.style.display='block';}
+  else{tip.style.display='none';}
+  document.getElementById('fc-progress').textContent=(fcIdx+1)+' / '+fcFiltered.length;
+}
+function flipCard(){
+  fcFlipped=!fcFlipped;
+  document.getElementById('fc-card').classList.toggle('flipped',fcFlipped);
+  document.getElementById('fc-flip-btn').textContent=fcFlipped?'Hide answer':'Reveal answer';
+}
+function nextCard(){fcIdx=(fcIdx+1)%fcFiltered.length;showFC();}
+function prevCard(){fcIdx=(fcIdx-1+fcFiltered.length)%fcFiltered.length;showFC();}
+function shuffleCards(){
+  for(let i=fcFiltered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[fcFiltered[i],fcFiltered[j]]=[fcFiltered[j],fcFiltered[i]];}
+  fcIdx=0;showFC();
+}
+function resetCards(){
+  fcFiltered=fcCat==='All'?[...fcAll]:fcAll.filter(c=>c.c===fcCat);
+  fcIdx=0;showFC();
+}
+
+// ════════════════════════════════════════════════
+// QUIZ LOGIC
+// ════════════════════════════════════════════════
+let qAll=[...QS],qFiltered=[...QS],qIdx=0,qScore=0,qAnswered=false,qCat='All';
+let qDispAns=0;
+
+// Two-level category system
+const mockLabels = [...new Set(QS.filter(q=>q.mock).map(q=>q.m))];
+const quizLabels = [...new Set(QS.filter(q=>!q.mock).map(q=>q.m))];
+
+function activeTab(){
+  return document.getElementById('flashcards').classList.contains('active')?'fc':'quiz';
+}
+
+function updateCounter(){
+  const tot=qFiltered.length;
+  const scoreEl=document.getElementById('q-score');
+  const numEl=document.getElementById('q-num');
+  const progEl=document.getElementById('q-prog');
+  if(scoreEl) scoreEl.textContent='Score: '+qScore+' / '+qIdx;
+  if(numEl)   numEl.textContent='Question '+(qIdx+1)+' of '+tot;
+  if(progEl)  progEl.style.width=((qIdx/tot)*100)+'%';
+}
+
+function initQ(){
+  const bar=document.getElementById('q-cats');bar.innerHTML='';
+
+  // Helper to create a button
+  function makeBtn(label, filterVal){
+    const b=document.createElement('button');
+    b.className='cat-btn'+(filterVal===qCat?' active':'');
+    b.textContent=label;
+    b.onclick=()=>{qCat=filterVal;restartQuiz();};
+    return b;
+  }
+
+  // Group header
+  function makeHeader(txt){
+    const s=document.createElement('span');
+    s.style.cssText='font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-right:4px;align-self:center;white-space:nowrap;';
+    s.textContent=txt;
+    return s;
+  }
+
+  bar.appendChild(makeBtn('All ('+qAll.length+')', 'All'));
+  bar.appendChild(makeHeader('│ Practice:'));
+  quizLabels.forEach(l=>bar.appendChild(makeBtn(l, l)));
+  bar.appendChild(makeHeader('│ Exams:'));
+  bar.appendChild(makeBtn('All Exams', '__mock__'));
+  mockLabels.forEach(l=>bar.appendChild(makeBtn(l, l)));
+
+  shuffleQ();showQ();
+}
+function shuffleQ(){
+  if(qCat==='All') qFiltered=[...qAll];
+  else if(qCat==='__mock__') qFiltered=qAll.filter(q=>q.mock);
+  else qFiltered=qAll.filter(q=>q.m===qCat);
+  if(qCat==='All'){
+    const mock=qFiltered.filter(q=>q.mock);
+    const rest=qFiltered.filter(q=>!q.mock);
+    for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+    qFiltered=[...mock,...rest];
+  } else {
+    for(let i=qFiltered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qFiltered[i],qFiltered[j]]=[qFiltered[j],qFiltered[i]];}
+  }
+}
+function showQ(){
+  document.getElementById('end').classList.remove('active');
+  document.getElementById('end').style.display='none';
+  document.getElementById('quiz-main').style.display='block';
+  document.querySelectorAll('#q-cats .cat-btn').forEach(b=>{
+    const cat=b.textContent==='All questions'?'All':b.textContent;
+    b.classList.toggle('active',cat===qCat);
+  });
+  if(qIdx>=qFiltered.length){showEnd();return;}
+  const q=qFiltered[qIdx];qAnswered=false;
+  const isMock=!!q.mock;
+  document.getElementById('q-card').className='q-card'+(isMock?' mock-card':'');
+  const modEl=document.getElementById('q-mod');
+  modEl.className='q-mod'+(isMock?' mock-mod':'');
+  modEl.innerHTML=isMock?q.m+' <span class="mock-badge">Official Exam</span>':q.m;
+  // Split question into text parts and code block
+  (function renderQuestion(raw){
+    function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    const lines = raw.split('\n');
+    // Detect code lines: numbered items OR Python-style code
+    function isCodeLine(l){
+      if(!l.trim()) return false;
+      if(/^\d+[\-\)\.]/.test(l)) return true;  // 1- 1) 1.
+      if(/^(from |import |def |class |for |while |if |elif |else:|try:|except|return |with |pass$)/.test(l)) return true;
+      if(/^#/.test(l)) return true;  // comments
+      if(/^[a-z_][a-zA-Z0-9_]*\s*=/.test(l)) return true;  // variable assignment
+      if(/^[A-Z_][a-zA-Z0-9_]*,\s*[A-Z_]/.test(l)) return true;  // X_train, X_test = ...
+      if(/^[a-z_]\w*[\.\(]/.test(l)) return true;  // method call like model.fit(
+      return false;
+    }
+    // Group into [pre-text | code block | post-text]
+    let pre=[], code=[], post=[], phase=0;
+    for(const line of lines){
+      const ic = isCodeLine(line);
+      if(phase===0 && ic){ phase=1; code.push(line); }
+      else if(phase===1 && (ic||!line.trim())){ code.push(line); }
+      else if(phase===1 && !ic){ phase=2; post.push(line); }
+      else if(phase===0){ pre.push(line); }
+      else { post.push(line); }
+    }
+    // Remove trailing blank lines from code block
+    while(code.length && !code[code.length-1].trim()) code.pop();
+    const qEl = document.getElementById('q-text');
+    const cbEl = document.getElementById('q-code-block');
+    if(code.length){
+      while(pre.length && !pre[pre.length-1].trim()) pre.pop();
+      while(post.length && !post[post.length-1].trim()) post.pop();
+      let html = pre.map(l=>'<span>'+escHtml(l)+'</span>').join('<br>');
+      if(post.length) html += (pre.length?'<br><br>':'') + post.map(l=>'<span>'+escHtml(l)+'</span>').join('<br>');
+      qEl.innerHTML = html;
+      cbEl.className = 'q-code';
+      cbEl.textContent = code.join('\n');
+      cbEl.style.display = 'block';
+    } else {
+      qEl.textContent = raw;
+      cbEl.style.display = 'none';
+    }
+  })(q.q);
+  document.getElementById('q-next').style.display='none';
+  const fb=document.getElementById('q-fb');fb.style.display='none';fb.className='feedback';
+
+  // Shuffle options so correct answer appears in a random position
+  const optOrder=q.o.map((_,i)=>i);
+  for(let i=optOrder.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [optOrder[i],optOrder[j]]=[optOrder[j],optOrder[i]];
+  }
+  qDispAns=optOrder.indexOf(q.a);
+  const dispOpts=optOrder.map(i=>q.o[i]);
+
+  const opts=document.getElementById('q-opts');opts.innerHTML='';
+  const labels=['A','B','C','D','E','F'];
+  dispOpts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML='<span class="ol">'+labels[i]+'</span><span>'+opt+'</span>';
+    btn.onclick=()=>answerQ(i);
+    opts.appendChild(btn);
+  });
+
+  updateCounter();
+  // Remove focus from any button so keyboard events go to document
+  if(document.activeElement) document.activeElement.blur();
+}
+
+function answerQ(chosen){
+  if(qAnswered)return;qAnswered=true;
+  const q=qFiltered[qIdx];
+  document.querySelectorAll('.opt').forEach((btn,i)=>{
+    btn.classList.add('disabled');
+    if(i===qDispAns)btn.classList.add('correct');
+    else if(i===chosen)btn.classList.add('wrong');
+  });
+  const fb=document.getElementById('q-fb');
+  fb.style.display='block';
+  if(chosen===qDispAns){qScore++;fb.className='feedback correct';fb.textContent='✓ Correct! '+q.e;}
+  else{fb.className='feedback wrong';fb.textContent='✗ Not quite. '+q.e;}
+  // Update score (question count stays the same until Next is clicked)
+  document.getElementById('q-score').textContent='Score: '+qScore+' / '+(qIdx+1);
+  document.getElementById('q-num').textContent='Question '+(qIdx+1)+' of '+qFiltered.length;
+  document.getElementById('q-prog').style.width=(((qIdx+1)/qFiltered.length)*100)+'%';
+  const nextBtn=document.getElementById('q-next');
+  nextBtn.style.display='inline-block';
+  nextBtn.focus(); // focus Next button so Enter key works
+}
+
+function nextQ(){qIdx++;showQ();}
+function restartQuiz(){
+  qScore=0;qIdx=0;shuffleQ();
+  document.getElementById('end').classList.remove('active');
+  document.getElementById('end').style.display='none';
+  document.getElementById('quiz-main').style.display='block';
+  showQ();
+}
+function showEnd(){
+  document.getElementById('quiz-main').style.display='none';
+  const end=document.getElementById('end');
+  end.style.display='block';end.classList.add('active');
+  const pct=Math.round((qScore/qFiltered.length)*100);
+  document.getElementById('end-val').innerHTML=qScore+' <span>/ '+qFiltered.length+'</span>';
+  let msg='';
+  if(pct>=90)msg='🏆 Excellent! You are very well prepared.';
+  else if(pct>=75)msg='👍 Good! Review the modules where you made mistakes.';
+  else if(pct>=55)msg='📚 Decent start. Focus on the topics that tripped you up.';
+  else msg='🔄 Keep studying! Go through the notes on the modules you struggled with.';
+  document.getElementById('end-msg').textContent=pct+'% correct — '+msg;
+}
+
+// ════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// Flashcards: ← → to navigate, Space to flip
+// Quiz:       ← → navigate freely, A-D/1-4 select answer
+// ════════════════════════════════════════════════
+document.addEventListener('keydown',function(e){
+  if(activeTab()==='fc'){
+    if(e.key==='ArrowRight'){e.preventDefault();nextCard();}
+    else if(e.key==='ArrowLeft'){e.preventDefault();prevCard();}
+    else if(e.key===' '){e.preventDefault();flipCard();}
+    return;
+  }
+  // Quiz tab — free navigation with arrow keys
+  if(e.key==='ArrowRight'||e.key==='Enter'){
+    e.preventDefault();nextQ();
+    return;
+  }
+  if(e.key==='ArrowLeft'){
+    e.preventDefault();
+    if(qIdx>0){qIdx--;showQ();}
+    return;
+  }
+  // A/B/C/D or 1/2/3/4 selects answer
+  const map={'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'1':0,'2':1,'3':2,'4':3,'5':4,'6':5};
+  const k=e.key.toLowerCase();
+  if(k in map && !qAnswered){
+    const i=map[k];
+    const btns=document.querySelectorAll('.opt:not(.disabled)');
+    if(i<btns.length){e.preventDefault();answerQ(i);}
+  }
+});
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['flashcards','quiz'][i]===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(tab).classList.add('active');
+  if(document.activeElement) document.activeElement.blur();
+}
+initFC();initQ();
+</script>
+</body>
+</html>
